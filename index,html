@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nepali Phonetic Keyboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Use Google Fonts for 'Noto Sans Devanagari' -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            width: 100%;
+            max-width: 650px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s ease-in-out;
+            font-family: 'Noto Sans Devanagari', sans-serif;
+        }
+        textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .suggestion-popup {
+            position: absolute;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 0.5rem;
+            z-index: 50;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            max-width: 300px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .suggestion-btn {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+        .suggestion-btn:hover {
+            background-color: #dbeafe;
+            transform: translateY(-1px);
+        }
+        .suggestion-btn:active {
+            transform: translateY(0);
+        }
+        .suggestion-btn.highlighted {
+            background-color: #a7d3fd;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        .output-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            justify-content: flex-end;
+        }
+        .action-button {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+        .action-button:hover {
+            background-color: #4338ca;
+            transform: translateY(-1px);
+        }
+        .action-button:active {
+            transform: translateY(0);
+        }
+        .action-button.highlighted {
+            background-color: #a7d3fd;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        .user-id-display {
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: #4b5563;
+            text-align: center;
+            word-break: break-all;
+        }
+
+        .textarea-box {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-size: 1.5rem;
+            line-height: 2.25rem;
+        }
+
+        .keyboard-row button {
+            transition: transform 0.1s ease-in-out, background-color 0.1s ease-in-out;
+        }
+
+        .keyboard-row button:active {
+            transform: scale(0.95);
+        }
+        
+        /* Tips and Tricks Section */
+        .tips-container {
+            margin-top: 2rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tips-header {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        
+        .tips-content {
+            background-color: #f1f5f9;
+            padding: 1rem;
+        }
+        
+        .tip-item {
+            margin-bottom: 0.75rem;
+            display: flex;
+        }
+        
+        .tip-bullet {
+            color: #3b82f6;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        .examples-container {
+            margin-top: 1.5rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .examples-header {
+            background-color: #10b981;
+            color: white;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+        
+        .examples-content {
+            background-color: #ecfdf5;
+            padding: 1rem;
+        }
+        
+        .example-item {
+            margin-bottom: 0.5rem;
+            display: flex;
+        }
+        
+        .example-input {
+            font-weight: 500;
+            margin-right: 0.5rem;
+            color: #059669;
+        }
+        
+        .example-output {
+            color: #065f46;
+        }
+        
+        /* Cursor position indicator for debugging */
+        .cursor-position {
+            position: absolute;
+            background: red;
+            width: 2px;
+            height: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Nepali Phonetic Transliteration Keyboard</h1>
+        <p class="text-center text-gray-600 mb-4">Click the keys or type using the phonetic layout below.</p>
+
+        <!-- Phonetic Input Box -->
+        <div class="mb-4 relative">
+            <label for="phonetic-input-textarea" class="label block">Phonetic Input</label>
+            <textarea id="phonetic-input-textarea"
+                class="w-full h-24 p-4 rounded-2xl border-2 border-gray-300 focus:outline-none focus:border-blue-500 resize-none shadow-inner textarea-box"
+                placeholder="Start typing in English... " spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
+            <div class="flex gap-2 mt-2">
+                <button id="insertZWNJ" class="action-button">ZWNJ</button>
+                <button id="insertZWJ" class="action-button">ZWJ</button>
+            </div>
+            <!-- Suggestion popup will be inserted here dynamically -->
+        </div>
+
+        <!-- Devanagari Output Box -->
+        <div class="mb-6">
+            <label for="devanagari-output-textarea" class="label block">Devanagari Output</label>
+            <textarea id="devanagari-output-textarea"
+                class="w-full h-24 p-4 rounded-2xl border-2 border-gray-300 bg-gray-100 resize-none shadow-inner textarea-box"
+                readonly></textarea>
+            <div class="output-actions">
+                <button id="selectAllBtn" class="action-button">Select All</button>
+                <button id="copyBtn" class="action-button">Copy</button>
+            </div>
+        </div>
+        
+        <!-- Tips and Tricks Section -->
+        <div class="tips-container">
+            <div class="tips-header">Tips and Tricks</div>
+            <div class="tips-content">
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span>General phonetic: k=क्, ka=क, kaa=का, ki=कि, kii=की, ku=कु, kuu=कू, ke=के, kai=कै, ko=को, kau=कौ, yna = ञ</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span>To mix English into your Nepali text. Simply put any text you want to keep in English inside the curly {} brackets. Example: yo {mobile} mero ho. = यो mobile मेरो हो।</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span>If a letter gets wrongly evaluated with the next letter, use the slash (/) key to separate. Example: .pratishatko = प्रतिशत्को, pratishat/ko = प्रतिशतको | शब्दको अन्त्यमा हलन्त नराख्नको लागि backslash (\) अक्षर प्रयोग गर्नुहोस् । Example: bas = बस्, bas\ = बस।</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span class="tip-text">When typing \, /, *, **, these won't be seen in the input and output as they are special formatting characters</span>
+                </div>             
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span>Other special characters: .=।, ..=॥, *=ं, **=ँ,</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span>Press shift key to toggle 'ZWNJ' and 'ZWJ' and 'enter' to select</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span>Press space key to exit from highlighted ZWNJ or ZWJ</span>
+                </div>              
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span>Note: 'ZWNJ' and 'ZWJ' are used to type like न् + zwj= न्‍</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span>Press 'Esc' to disable suggestions and press again to enable</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span>Use arrows like ←,→,↑,↓ or Tab/Shift+Tab to cycle/move across suggestions</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-bullet">•</span>
+                    <span>Long press on floating popup box to move to a particular place</span>
+                </div>              
+            </div>
+        </div>
+        
+        <!-- Examples Section -->
+        <div class="examples-container">
+            <div class="examples-header">Some Examples</div>
+            <div class="examples-content">
+                <div class="example-item">
+                    <span class="example-input">namaskar</span>
+                    <span class="example-output">= नमस्कार</span>
+                </div>
+                <div class="example-item">
+                    <span class="example-input">dhanyawaad</span>
+                    <span class="example-output">= धन्यवाद</span>
+                </div>
+                <div class="example-item">
+                    <span class="example-input">sagarmatha</span>
+                    <span class="example-output">= सगरमाथा</span>
+                </div>
+                <div class="example-item">
+                    <span class="example-input">sa*bidhan</span>
+                    <span class="example-output">= संविधान</span>
+                </div>
+                <div class="example-item">
+                    <span class="example-input">swatantrataa</span>
+                    <span class="example-output">= स्वतन्त्रता</span>
+                </div>
+                <div class="example-item">
+                    <span class="example-input">Kathmandu</span>
+                    <span class="example-output">= काठमणडौँ</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="userIdDisplay" class="user-id-display"></div>
+    </div>
+
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const textarea = document.getElementById('phonetic-input-textarea');
+        const outputArea = document.getElementById('devanagari-output-textarea');
+        const selectAllButton = document.getElementById('selectAllBtn');
+        const copyButton = document.getElementById('copyBtn');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const insertZWNJBtn = document.getElementById('insertZWNJ');
+        const insertZWJBtn = document.getElementById('insertZWJ');
+
+        // Create a suggestion popup element
+        const suggestionPopup = document.createElement('div');
+        suggestionPopup.id = 'suggestionPopup';
+        suggestionPopup.className = 'suggestion-popup';
+        suggestionPopup.style.display = 'none';
+        document.querySelector('.mb-4.relative').appendChild(suggestionPopup);
+
+        // Firebase variables
+        let app;
+        let db;
+        let auth;
+        let userId;
+
+        // Global variable to control suggestion visibility
+        let suggestionsEnabled = true;
+
+        // Flag for navigation keys
+        let isNavigationKeyPressed = false;
+
+        // Flag for user-positioned popup
+        let userPositioned = false;
+
+        // Document content for parsing phonetic rules
+        const documentContent = `Nepali Barhakhari (बाराखडी)
+स्वर (Vowels)
+a=अ/आ , aa=आ , i=इ/ई , ii=ई , u=उ/ऊ , uu=ऊ , e=ए , ai=ऐ , o=ओ , au=औ ,', ?= ?, !=!
+व्यंजन (Consonants with Vowels)
+क (ka)
+k/c=क्/क , ka/ca=क/का , kaa=का , ki=कि/की , kii=की , ku=कु/कू , kuu=कू , ke=के , kai=कै , ko=को , kau=कौ 
+ख (kha)
+kh=ख्/ख , kha=ख/खा , khaa=खा , khi=खि/खी , khii=खी , khu=खु/खू , khuu=खू , khe=खे , khai=खै , kho=खौ , khau=खौ 
+ग (ga)
+g=ग्/ग , ga=ग/गा , gaa=गा , gi=गि/गी , gii=गी , gu=गु/गू , guu=गू , ge=गे , gai=गै , go=गो , gau=गौ
+घ (gha)
+gh=घ्/घ , gha=घ/घा , ghaa=घा , ghi=घि/घी , ghii=झी , ghu=घु/घू , ghuu=घू , ghe=घे , ghai=घै , gho=घो , ghau=घौ 
+ङ (nga)
+ng=ङ्/ङ , nga=ङ/ङा , ngaa=ङा , ngi=ङि/ङी , ngii=ङी , ngu=ङु/ङू , nguu=ङू , nge=ङे , ngai=ङै , ngo=ङो , ngau=ङ 
+च (cha)
+ch=च्/च , cha=च/चा , chaa=चा , chi=चि/ची , chii=ची , chu=चु/चू , chuu=चू , che=चे , chai=चै , cho=चो , chau=चौ
+छ (chha)
+chh/x=छ्/छ , chha/xa=छ/छा, chhaa/xaa=छा , chhi/xi= छि/छी , chhii/xii=छी , chhu/xu=छु/छू , chhuu/xuu=छू , chhe/xe=छे , chhai/xai=छै , chho/xo=छो , chhau/xau=छौ
+ज (ja)
+j/z=ज्/ज , ja/za=ज/जा , jaa/zaa=जा , ji/zi=जि/जी , jii/zii=जी , ju=जु/जू , juu/zuu=जू , je/ze=जे , jai/zai=जै , jo/zo=जो , jau/zau=जौ
+झ (jha)
+jh=झ्/झ , jha=झ/झा , jhaa=झा , jhi=झि/झी , jhii=झी , jhu=झु/झू , jhuu=झू , jhe=झे , jhai=झै , jho=झो , jhau=झौ
+ञ (yna)
+yn=ञ् , yna=ञ , ynaa=ञा , yni=ञि , ynii=ञी , ynu=ञु , ynuu=ञू , yne=ञे , ynai=ञै , yno=ञो , ynau=ञौ 
+ण (Na)
+N=न्/ण्/न/ण, Na=न/ण/ णा/ना , Naa=ना/णा, Ni=नि/नी /णि/णी/नी, Nii=नी/णी, Nu=नु/नू/णु/णू, Nuu=नू/णू/, Ne=ने/णे/, Nai=नै/णै, No=नो/णो, Nau=नौ/णौ
+त (ta)
+t= ट्/त्/ट/त , ta= ट/त/टा/ता , taa= टा/ता , ti= टि/ति/टी/ती, tii=ती , tu= टू/तु/टू/तू , tuu= टू/तू , te= टे/ते , tai= टै/तै , to= टो/तो , tau= टौ/तौ 
+थ (tha)
+th= ठ्/थ्/ठ/थ , tha= ठ/थ/ठा/था , thaa=ठा/था , thi= ठि/थि/ठी/थी , thii=थी , thu= ठु/थु/ठू, thuu= ठू/थू , the= ठे/थें , thai= ठै/थै , tho= ठो/थौ , thau= ठौ/थौ 
+द (da)
+d= ड्/द्/ड/द , da= ड/द/डा/दा , daa=डा/दा , di= डि/दि/डी/दी , dii= डी/दी , du= डु/दु/डू/दू/डौ , duu= डू/दू , de= डे/दे , dai= डै/दै , do= डो/दो , dau= डौ/दौ
+ध (dha)
+dh= ढ्/ध् , dha= ढ/ध/ढा/धा , dhaa= ढा/धा , dhi= ढि/धि/ढी/धी , dhii= ढी/धी , dhu= ढु/धु/ढू/धू , dhuu= ढू/धू , dhe= ढे/धे , dhai= ढै/धै , dho=ढो/धो , dhau=ढौ/धौ 
+न (na)
+n=न्/ण्/ञ्/न/ञ/ण/ ं , na=न/ञ/ण/ना/णा , naa=ना/णा , ni=नि/नी/णि/णी , nii=नी/णी , nu=नु/नू , nuu=नू , ne=ने/णे , nai=नै/णै , no=नो/णो , nau=नौ/णौ
+प (pa)
+p=प्/ प  , pa=प/ पा  , paa=पा , pi=पि/ पी  , pii=पी , pu=पु/ पू  , puu=पू , pe=पे , pai=पै , po=पो , pau=पौ
+फ (pha)
+ph/f=फ्/फ  , pha/fa=फ/ फा  , phaa/faa=फा , phi/fi=फि/ फी  , phii/fii=फी , phu/fu/phoo=फु/ फू  , phuu/fuu=फू , phe/fe=फे , phai/fai=फै , pho/fo=फो , phau/fau=फौ
+ब (ba)
+b=ब्/ब/व्/व, ba=ब/बा/व/वा , baa=बा/वा , bi=बि/ बी/वि/वी , bii=बी/वी , bu=बु/बू/वु/वू , buu=बू/वू , be=बे/वे , bai=बै/वै , bo=बो/वो, bau=बौ/वौ 
+भ (bha)
+bh=भ्/ भ  , bha=भ/ भा  , bhaa=भा , bhi=भि/ भी  , bhii=भी , bhu=भु/ भू  , bhuu=भू , bhe=भे , bhai=भै , bho=भो , bhau=भौ 
+म (ma)
+m=म्/ म/ ं  , ma=म/ मा  , maa=मा , mi=मि/ मी  , mii=मी , mu=मु/ मू  , muu=मू , me=मे , mai=मै , mo=मो , mau=मौ
+य (ya)
+y=य्/ य  , ya=य/ या  , yaa=या , yi=यि/ यी  , yii=यी , yu=यु/ यू  , yuu=यू , ye=ये , yai=यै , yo=यो , yau=यौ 
+र (ra)
+r=र्/र/र्‍, ra=र/रा , raa=रा , ri=रि/री/  ृ  / ऋ  , rii=री , ru=रु/रू , ruu=रू , re=रे , rai=रै , ro=रो , rau=रौ 
+ल (la)
+l=ल्/ल, la=ल/ला , laa=ला , li=लि/ली , lii=ली , lu=लु/लू , luu=लू , le=ले , lai=लै , lo=लो , lau=लौ
+व (wa)
+w/v/=व्/व, wa/va=व/वा, waa/vaa=वा, wi/vi=वि/वी, wii/vii=वी, wu/vu=वु/वू, wuu/vuu=वू, we/ve=वे, wai/vai=वै, wo/vo=वो , wau/vau=वौ 
+ष (sha)
+sh= श्/ष्/श/ष, sha= श/ष/शा/षा , shaa=षा , shi= शि/षि/शी/षी , shii=षी , shu= शु/षु/ , shuu=षू/षू , she= शे/षे , shai= शै/षै , sho= शो/षो , shau= शौ/षौ
+स (sa)
+s=स्/स , sa=स/सा , saa=सा , si=सि/सी , sii=सी , su=सु/सू , suu=सू , se=से , sai=सै , so=सो , sau=सौ 
+ह (ha)
+h=ह्/ह , ha=ह/हा , haa=हा , hi=हि/ही , hii=ही , hu=हु/हू , huu=हू , he=हे , hai=है , ho=हो , hau=हौ 
+क्ष (ksha)
+ksh=क्ष्/क्ष , ksha=क्ष/क्षा , kshaa=क्षा , kshi=क्षि/क्षी , kshuu=क्षू , kshe=क्षे , kshai=क्षै , ksho=क्षो , kshau=क्षौ 
+त्र (tra)
+tr=त्र्/त्र , tra=त्र/त्रा , traa=त्रा , tri=त्रि/त्री/त्रृ , trii=त्री , tru=त्रु/त्रू , truu=त्रू , tre=त्रे , trai=त्रै , tro=त्रो , trau=त्रौ
+ज्ञ (gya)
+gy=ज्ञ्/ज्ञ , gya=ज्ञ/ ज्ञा , gyaa=ज्ञा , gyi=ज्ञि/ज्ञी , gyii=ज्ञी , gyu=ज्ञु/ज्ञू , gyuu=ज्ञू , gye=ज्ञे , gyai=ज्ञै , gyo=ज्ञो , gyau=ज्ञौ
+shr=श्र्/श्र , shra=श्र/श्रा , shraa=श्रा , shri=श्रि/श्री/श्रृ/श‍ृ , shrii=श्री , shru=श्रु/श्रू/ , shruu=श्रू , shre=श्रे , shrai=श्रै , shro=श्रो , shrau=श्रौ
+      
+विशेष   वर्णहरू :
+  \` ॐ \` = \`OM\`
+  \` ं \` = \`*\`
+  \` ँ \` = \`**\`
+  \` । \` = \`.\`
+  \` ॥ \` = \`..\`
+  \`  ः  \` = \`:\`
+Combine English into Nepali text: Simply put any english text inside the curly {} brackets to keep it in English. Example: yo {mobile} mero ho. =  यो  mobile  मेरो   हो   ।  For easiness when i type '{' it must show '{}' with cursor inside to type.
+If a Nepali letter gets wrongly analyze with the preceding letter, use the slash (/) key to separate. Example: gyan =  ज्ञान , g/yan =  ग्यान   ।
+should not be case sensitive except 'N=ण्/ ण , Na=ण/ णा , न / ना , Naa=णा/ना , Ni=णि/ णी/ नि/नी , Nii=णी/नी , Nu=णु/ णू/ नु/नू , Nuu=णू/नू , Ne=णे/ने , Nai=णै/नै , No=णो/ नो , Nau=णौ/नौ , Nam=णं , Nah=नः ' which must be case sensitive.
+संयुक्त   अक्षर  (joining consonants/letters)`;
+
+        const barhakhariMap = new Map();
+        const caseSensitiveKeys = new Set();
+
+        // Manually add the specified case-sensitive keys for 'N' family
+        [
+            'N', 'Na', 'Naa', 'Ni', 'Nii', 'Nu', 'Nuu', 'Ne', 'Nai', 'No', 'Nau', 'Nam', 'Nah'
+        ].forEach(key => caseSensitiveKeys.add(key));
+
+        // Regex to extract mapping parts from a line like "k=क्/क" or "chh/x=छ्/छ"
+        const mappingRegex = /([a-zA-Z\/\*:]+)\s*=\s*([^,]+)/g;
+
+        const documentLines = documentContent.split('\n');
+        let inMappingSection = false;
+
+        documentLines.forEach(line => {
+            if (line.includes('स्वर (Vowels)')) {
+                inMappingSection = true;
+                return;
+            }
+            if (line.includes('Combine English into Nepali text:')) {
+                inMappingSection = false;
+                return;
+            }
+            if (!inMappingSection || line.trim() === '' || line.includes('विशेष   वर्णहरू :')) {
+                return;
+            }
+
+            mappingRegex.lastIndex = 0;
+            let match;
+            while ((match = mappingRegex.exec(line)) !== null) {
+                const englishKeysRaw = match[1].trim();
+                const nepaliCharsRaw = match[2].trim();
+
+                const nepaliChars = nepaliCharsRaw.split('/').map(c => c.trim()).filter(c => c.length > 0);
+                if (nepaliChars.length === 0) continue;
+
+                const englishKeys = englishKeysRaw.split('/').map(k => k.trim()).filter(k => k.length > 0);
+
+                englishKeys.forEach(key => {
+                    if (caseSensitiveKeys.has(key)) {
+                        barhakhariMap.set(key, nepaliChars);
+                    } else {
+                        barhakhariMap.set(key.toLowerCase(), nepaliChars);
+                    }
+                });
+            }
+        });
+
+        barhakhariMap.set('om', ['ॐ']);
+        barhakhariMap.set('*', ['ं']);
+        barhakhariMap.set('**', ['ँ']);
+        barhakhariMap.set('.', ['।']);
+        barhakhariMap.set('..', ['॥']);
+        barhakhariMap.set(':', ['ः']);
+
+        let selectedSuggestionIndex = -1;
+        let highlightedButton = null;
+
+        function clearSuggestionHighlight() {
+            const currentHighlighted = suggestionPopup.querySelector('.suggestion-btn.highlighted');
+            if (currentHighlighted) {
+                currentHighlighted.classList.remove('highlighted');
+            }
+        }
+
+        function highlightSuggestion(index) {
+            clearSuggestionHighlight();
+            const suggestions = suggestionPopup.querySelectorAll('.suggestion-btn');
+            if (suggestions.length > 0 && index >= 0 && index < suggestions.length) {
+                suggestions[index].classList.add('highlighted');
+                suggestions[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+            }
+        }
+
+        function positionSuggestionPopup() {
+            if (!suggestionsEnabled || suggestionPopup.children.length === 0) {
+                suggestionPopup.style.display = 'none';
+                return;
+            }
+
+            if (userPositioned) {
+                suggestionPopup.style.display = 'flex';
+                return;
+            }
+
+            // Get cursor position
+            const cursorPos = textarea.selectionStart;
+            const textBeforeCursor = textarea.value.substring(0, cursorPos);
+            const lines = textBeforeCursor.split('\n');
+            const currentLine = lines[lines.length - 1];
+            
+            // Create a temporary span to measure the width of the text before cursor
+            const span = document.createElement('span');
+            span.style.whiteSpace = 'pre-wrap';
+            span.style.font = getComputedStyle(textarea).font;
+            span.style.visibility = 'hidden';
+            span.style.position = 'absolute';
+            span.textContent = currentLine;
+            document.body.appendChild(span);
+            
+            const textWidth = span.offsetWidth;
+            const textHeight = span.offsetHeight;
+            document.body.removeChild(span);
+            
+            // Get textarea position
+            const textareaRect = textarea.getBoundingClientRect();
+            const lineHeight = parseInt(getComputedStyle(textarea).lineHeight);
+            
+            // Calculate popup position
+            const popupX = textareaRect.left + textWidth + 10;
+            const lineIndex = lines.length - 1;
+            const popupY = textareaRect.top + (lineIndex * lineHeight) - suggestionPopup.offsetHeight - 5;
+            
+            // Position the popup
+            suggestionPopup.style.left = `${popupX}px`;
+            suggestionPopup.style.top = `${popupY}px`;
+            suggestionPopup.style.display = 'flex';
+        }
+
+        function displaySuggestions(suggestions) {
+            if (!suggestionsEnabled) {
+                suggestionPopup.innerHTML = '';
+                suggestionPopup.style.display = 'none';
+                selectedSuggestionIndex = -1;
+                return;
+            }
+
+            suggestionPopup.innerHTML = '';
+            selectedSuggestionIndex = -1;
+
+            suggestions.forEach((sug, index) => {
+                const button = document.createElement('button');
+                button.className = 'suggestion-btn';
+                button.textContent = sug.nepaliChar;
+                button.dataset.englishKey = sug.englishKey;
+                button.dataset.nepaliChar = sug.nepaliChar;
+                button.dataset.startIndex = sug.startIndex;
+                button.dataset.suggestionIndex = index;
+                button.dataset.isWord = sug.isWord || false;
+                if (sug.fullReplacementPhonetic) {
+                    button.dataset.fullReplacementPhonetic = sug.fullReplacementPhonetic;
+                }
+                button.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                });
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    selectSuggestion(
+                        event.target.dataset.nepaliChar,
+                        event.target.dataset.englishKey,
+                        parseInt(event.target.dataset.startIndex),
+                        event.target.dataset.isWord === 'true',
+                        event.target.dataset.fullReplacementPhonetic
+                    );
+                });
+                suggestionPopup.appendChild(button);
+            });
+
+            if (suggestions.length > 0) {
+                selectedSuggestionIndex = 0;
+                highlightSuggestion(selectedSuggestionIndex);
+                positionSuggestionPopup();
+            } else {
+                suggestionPopup.style.display = 'none';
+            }
+        }
+
+        let userOverrides = new Map();
+        let slashSplitPoints = new Set();
+        let hiddenModifierPoints = new Map();
+        let fixedOutputSegments = new Map();
+
+        let lastProcessedTextAreaValue = '';
+
+        function getConceptualDetails(visibleText) {
+            let conceptualString = '';
+            let currentConceptualIdx = 0;
+            let currentVisibleIdx = 0;
+            let conceptualToVisible = new Map();
+            let visibleToConceptual = new Map();
+
+            const allConceptualMarkerIndices = Array.from(hiddenModifierPoints.keys())
+                .concat(Array.from(slashSplitPoints.keys()))
+                .sort((a, b) => a - b);
+
+            let markerPointer = 0;
+
+            while (currentVisibleIdx < visibleText.length || markerPointer < allConceptualMarkerIndices.length) {
+                const nextMarkerConceptualIdx = (markerPointer < allConceptualMarkerIndices.length)
+                    ? allConceptualMarkerIndices[markerPointer]
+                    : Infinity;
+
+                while (currentConceptualIdx < nextMarkerConceptualIdx && currentVisibleIdx < visibleText.length) {
+                    visibleToConceptual.set(currentVisibleIdx, currentConceptualIdx);
+                    conceptualToVisible.set(currentConceptualIdx, currentVisibleIdx);
+                    conceptualString += visibleText[currentVisibleIdx];
+                    currentConceptualIdx++;
+                    currentVisibleIdx++;
+                }
+
+                if (currentConceptualIdx === nextMarkerConceptualIdx && markerPointer < allConceptualMarkerIndices.length) {
+                    const conceptualMarker = allConceptualMarkerIndices[markerPointer];
+                    if (hiddenModifierPoints.has(conceptualMarker)) {
+                        const modifier = hiddenModifierPoints.get(conceptualMarker);
+                        conceptualString += modifier;
+                        currentConceptualIdx += modifier.length;
+                    } else if (slashSplitPoints.has(conceptualMarker)) {
+                        conceptualString += '/';
+                        currentConceptualIdx += 1;
+                    }
+                    markerPointer++;
+                } else if (currentVisibleIdx >= visibleText.length && markerPointer >= allConceptualMarkerIndices.length) {
+                    break;
+                } else {
+                    break;
+                }
+            }
+            return {
+                conceptualString: conceptualString,
+                conceptualLength: currentConceptualIdx,
+                conceptualToVisibleMap: conceptualToVisible,
+                visibleToConceptualMap: visibleToConceptual
+            };
+        }
+
+        function adjustConceptualMapsBasedOnVisibleChange(oldVisibleText, currentVisibleText, visibleChangeStart, visibleOldEnd, visibleNewEnd) {
+            const oldConceptualDetails = getConceptualDetails(oldVisibleText);
+            const oldConceptualString = oldConceptualDetails.conceptualString;
+            const oldVisibleToConceptualMap = oldConceptualDetails.visibleToConceptualMap;
+
+            const conceptualChangeStart = oldVisibleToConceptualMap.has(visibleChangeStart)
+                ? oldVisibleToConceptualMap.get(visibleChangeStart)
+                : oldConceptualString.length;
+
+            let conceptualOldEnd;
+            if (visibleOldEnd === oldVisibleText.length) {
+                conceptualOldEnd = oldConceptualString.length;
+            } else {
+                conceptualOldEnd = oldVisibleToConceptualMap.get(visibleOldEnd);
+            }
+
+            const conceptualDeletedLength = conceptualOldEnd - conceptualChangeStart;
+            const conceptualInsertedLength = visibleNewEnd - visibleChangeStart;
+
+            const shiftAmount = conceptualInsertedLength - conceptualDeletedLength;
+
+            const newHiddenModifierPoints = new Map();
+            const newSlashSplitPoints = new Set();
+            const newUserOverrides = new Map();
+            const newFixedOutputSegments = new Map();
+
+            hiddenModifierPoints.forEach((modifier, oldConceptualIdx) => {
+                if (oldConceptualIdx < conceptualChangeStart) {
+                    newHiddenModifierPoints.set(oldConceptualIdx, modifier);
+                } else if (oldConceptualIdx >= conceptualOldEnd) {
+                    newHiddenModifierPoints.set(oldConceptualIdx + shiftAmount, modifier);
+                }
+            });
+
+            slashSplitPoints.forEach((oldConceptualIdx) => {
+                if (oldConceptualIdx < conceptualChangeStart) {
+                    newSlashSplitPoints.add(oldConceptualIdx);
+                } else if (oldConceptualIdx >= conceptualOldEnd) {
+                    newSlashSplitPoints.add(oldConceptualIdx + shiftAmount);
+                }
+            });
+
+            userOverrides.forEach((override, oldConceptualIdx) => {
+                if (oldConceptualIdx < conceptualChangeStart) {
+                    newUserOverrides.set(oldConceptualIdx, override);
+                } else if (oldConceptualIdx >= conceptualOldEnd) {
+                    newUserOverrides.set(oldConceptualIdx + shiftAmount, override);
+                }
+            });
+
+            fixedOutputSegments.forEach((segment, oldConceptualIdx) => {
+                if (oldConceptualIdx < conceptualChangeStart) {
+                    newFixedOutputSegments.set(oldConceptualIdx, segment);
+                } else if (oldConceptualIdx >= conceptualOldEnd) {
+                    newFixedOutputSegments.set(oldConceptualIdx + shiftAmount, {
+                        conceptualEnd: segment.conceptualEnd + shiftAmount,
+                        devanagariWord: segment.devanagariWord
+                    });
+                }
+            });
+
+            hiddenModifierPoints = newHiddenModifierPoints;
+            slashSplitPoints = newSlashSplitPoints;
+            userOverrides = newUserOverrides;
+            fixedOutputSegments = newFixedOutputSegments;
+
+            const { conceptualLength: newFullConceptualLength } = getConceptualDetails(currentVisibleText);
+
+            const finalPrunedHiddenModifierPoints = new Map();
+            hiddenModifierPoints.forEach((val, key) => {
+                if (key < newFullConceptualLength) finalPrunedHiddenModifierPoints.set(key, val);
+            });
+            hiddenModifierPoints = finalPrunedHiddenModifierPoints;
+
+            const finalPrunedSlashSplitPoints = new Set();
+            slashSplitPoints.forEach(key => {
+                if (key < newFullConceptualLength) finalPrunedSlashSplitPoints.add(key);
+            });
+            slashSplitPoints = finalPrunedSlashSplitPoints;
+
+            const finalPrunedUserOverrides = new Map();
+            userOverrides.forEach((val, key) => {
+                if (key < newFullConceptualLength) finalPrunedUserOverrides.set(key, val);
+            });
+            userOverrides = finalPrunedUserOverrides;
+            
+            const finalPrunedFixedOutputSegments = new Map();
+            fixedOutputSegments.forEach((val, key) => {
+                if (key < newFullConceptualLength) {
+                    if (val.conceptualEnd <= newFullConceptualLength) {
+                        finalPrunedFixedOutputSegments.set(key, val);
+                    }
+                }
+            });
+            fixedOutputSegments = finalPrunedFixedOutputSegments;
+        }
+
+        let outputToConceptualMap = [];
+
+        function phoneticToDevanagari(phoneticInput) {
+            let devanagariOutput = '';
+            let tempPhonetic = phoneticInput;
+            let i = 0;
+
+            while (i < tempPhonetic.length) {
+                if (tempPhonetic[i] === '\u200c' || tempPhonetic[i] === '\u200d') {
+                    devanagariOutput += tempPhonetic[i];
+                    i++;
+                    continue;
+                }
+
+                let matched = false;
+                let longestMatchKey = '';
+                let bestNepaliChar = '';
+
+                for (let len = Math.min(6, tempPhonetic.length - i); len > 0; len--) {
+                    let segment = tempPhonetic.substring(i, i + len);
+                    let lookupKey = caseSensitiveKeys.has(segment) ? segment : segment.toLowerCase();
+
+                    if (barhakhariMap.has(lookupKey)) {
+                        longestMatchKey = segment;
+                        break;
+                    }
+                }
+
+                if (longestMatchKey) {
+                    const forms = barhakhariMap.get(caseSensitiveKeys.has(longestMatchKey) ? longestMatchKey : longestMatchKey.toLowerCase());
+                    let selectedForm = forms[0];
+
+                    let matchLength = longestMatchKey.length;
+                    const nextIndex = i + matchLength;
+                    if (nextIndex < tempPhonetic.length && tempPhonetic[nextIndex] === '\\' && selectedForm.endsWith('्')) {
+                        selectedForm = selectedForm.slice(0, -1);
+                        matchLength += 1;
+                    }
+
+                    devanagariOutput += selectedForm;
+                    i += matchLength;
+                    matched = true;
+                } 
+
+                if (!matched) {
+                    devanagariOutput += tempPhonetic[i];
+                    i++;
+                }
+            }
+            return devanagariOutput;
+        }
+
+        const devanagariToSimplifiedPhoneticMap = new Map([
+            ['अ', 'a'], ['आ', 'aa'], ['इ', 'i'], ['ई', 'ee'], ['उ', 'u'], ['ऊ', 'oo'],
+            ['ए', 'e'], ['ऐ', 'ai'], ['ओ', 'o'], ['औ', 'au'],
+            ['ॐ', 'om'], ['।', '.'], ['॥', '..'],['ृ','ri'],['ँ',''], ['ं',''], ['्',''], [ '?','?'], ['!','!'], ['ः',''],
+            
+            ['क्', 'k'], ['क', 'ka'], ['का', 'kaa'], ['कि', 'ki'], ['की', 'ki'], ['कु', 'ku'], ['कू', 'ku'], ['के', 'ke'], 
+            ['कै', 'kai'], ['को', 'ko'], ['कौ', 'kau'],
+            ['ख्', 'kh'],['ख', 'kha'], ['खा', 'kha'], ['खि', 'khi'], ['खी', 'khi'], ['खु', 'khu'], ['खू', 'khu'], 
+            ['खे', 'khe'], ['खै', 'khai'], ['खो', 'kho'], ['खौ', 'khau'],
+            ['ग्', 'g'], ['ग', 'ga'], ['गा', 'gaa'], ['गि', 'gi'], ['गी', 'gi'], ['गु', 'gu'], ['गू', 'gu'], ['गे', 'ge'], 
+            ['गै', 'gai'], ['गो', 'go'], ['गौ', 'gau'], 
+            ['घ्', 'gh'], ['घ', 'gha'], ['घा', 'ghaa'], ['घि', 'ghi'], ['घी', 'ghi'], ['घु', 'ghu'], ['घू', 'ghu'], 
+            ['घे', 'ghe'], ['घै', 'ghai'], ['घो', 'gho'], ['घौ', 'ghau'],
+            ['ङ्', 'ng'], ['ङ', 'nga'], ['ङा', 'ngaa'], ['ङि', 'ngi'], ['ङी', 'ngii'], ['ङु', 'ngu'], ['ङू', 'nguu'], 
+            ['ङे', 'nge'], ['ङै', 'ngai'], ['ङो', 'ngo'], ['ङौ', 'ngau'],   
+            ['च्', 'ch'], ['च', 'cha'], ['चा', 'chaa'], ['चि', 'chi'], ['ची', 'chi'], ['चु', 'chu'], ['चू', 'chu'], 
+            ['चे', 'che'], ['चै', 'chai'], ['चो', 'cho'], ['चौ', 'chau'],
+            ['छ्', 'chh'], ['छ', 'chha'], ['छा', 'chhaa'], ['छि', 'chhi'], ['छी', 'chhi'], ['छु', 'chhu'], ['छू', 'chhu'], 
+            ['छे', 'chhe'], ['छै', 'chhai'], ['छो', 'chho'], ['छौ', 'chhau'],
+            ['ज्', 'j'], ['ज', 'ja'], ['जा', 'jaa'], ['जि', 'ji'], ['जी', 'ji'], ['जु', 'ju'], ['जू', 'ju'], ['जे', 'je'], 
+            ['जै', 'jai'], ['जो', 'jo'], ['जौ', 'jau'], 
+            ['झ्', 'jh'], ['झ', 'jha'], ['झा', 'jhaa'], ['झि', 'jhi'], ['झी', 'jhi'], ['झु', 'jhu'], ['झू', 'jhu'], 
+            ['झे', 'jhe'], ['झै', 'jhai'], ['झो', 'jho'], ['झौ', 'jhau'],  
+            ['ञ्', 'ny'], ['ञ', 'nya'], ['ञा', 'nyaa'], ['ञि', 'nyi'], ['ञी', 'nyi'], ['ञु', 'nyu'], ['ञू', 'nyu'], 
+            ['ञे', 'nye'], ['ञै', 'nyai'], ['ञो', 'nyo'], ['ञौ', 'nyau'], 
+            ['ट्', 't'], ['ट', 'ta'], ['टा', 'taa'], ['टि', 'ti'], ['टी', 'ti'], ['टु', 'tu'], ['टू', 'tu'], ['टे', 'te'], 
+            ['टै', 'tai'], ['टो', 'to'], ['टौ', 'tau'], 
+            ['ठ्', 'th'], ['ठ', 'tha'], ['ठा', 'thaa'], ['ठि', 'thi'], ['ठी', 'thi'], ['ठु', 'thu'], ['ठू', 'thu'], 
+            ['ठे', 'the'], ['ठै', 'thai'], ['ठो', 'tho'], ['ठौ', 'thau'],
+            ['ड्', 'd'], ['ड', 'da'], ['डा', 'daa'], ['डि', 'di'], ['डी', 'di'], ['डु', 'du'], ['डू', 'du'], ['डे', 'de'], 
+            ['डै', 'dai'], ['डो', 'do'], ['डौ', 'dau'],
+            ['ढ्', 'dh'], ['ढ', 'dha'], ['ढा', 'dhaa'], ['ढि', 'dhi'], ['ढी', 'dhi'], ['ढु', 'dhu'], ['ढू', 'dhu'], 
+            ['धे', 'dhe'], ['धै', 'dhai'], ['धो', 'dho'], ['धौ', 'dhau'], 
+            ['ण्', 'n'], ['ण', 'na'], ['णा', 'naa'], ['णि', 'ni'], ['णी', 'ni'], ['णु', 'nu'], ['णू', 'nu'], ['णे', 'ne'], 
+            ['णै', 'nai'], ['णो', 'no'], ['णौ', 'nau'],
+            ['त्', 't'], ['त', 'ta'], ['ता', 'taa'], ['ति', 'ti'], ['ती', 'ti'], ['तु', 'tu'], ['तू', 'tu'], ['ते', 'te'], 
+            ['तै', 'tai'], ['तो', 'to'], ['तौ', 'tau'], 
+            ['थ्', 'th'], ['थ', 'tha'], ['था', 'thaa'], ['थि', 'thi'], ['थी', 'thi'], ['थु', 'thu'], ['थू', 'thu'], 
+            ['थे', 'the'], ['थै', 'thai'], ['थो', 'tho'], ['थौ', 'thau'], 
+            ['द्', 'd'], ['द', 'da'], ['दा', 'daa'], ['दि', 'di'], ['दी', 'di'], ['दु', 'du'], ['दू', 'du'], ['दे ', 'de'], 
+            ['दै', 'dai'], ['दो', 'do'], ['दौ', 'dau'],  
+            ['ध्', 'dh'], ['ध', 'dha'], ['धा', 'dhaa'], ['धि', 'dhi'], ['धी', 'dhi'], ['धु', 'dhu'], ['धू', 'dhu'], 
+            ['धे', 'dhe'], ['धै', 'dhai'], ['धो', 'dho'], ['धौ', 'dhau'], 
+            ['न्', 'n'], ['न', 'na'], ['ना', 'naa'], ['नि', 'ni'], ['नी', 'ni'], ['nu', 'nu'], ['नू', 'nu'], ['ने', 'ne'], 
+            ['नै', 'nai'], ['नो', 'no'], ['नौ', 'nau'], 
+            ['प्', 'p'], ['प', 'pa'], ['पा', 'paa'], ['पि', 'pi'], ['पी', 'pi'], ['पु', 'pu'], ['पू', 'pu'], ['पे', 'pe'], 
+            ['पै', 'pai'], ['पो', 'po'], ['पौ', 'pau'],
+            ['फ्', 'ph'], ['फ', 'pha'], ['फा', 'phaa'], ['फि', 'phi'], ['फी', 'phi'], ['फु', 'phu'], ['फू', 'phu'], 
+            ['फे', 'phe'], ['फै', 'phai'], ['फो', 'fo'], ['फौ', 'phau'], 
+            ['ब्', 'b'], ['ब', 'ba'], ['बा', 'baa'], ['बि', 'bi'], ['बी', 'bi'], ['बु', 'bu'], ['बू', 'bu'], ['बे', 'be'], 
+            ['बै', 'bai'], ['बो', 'bo'], ['बौ', 'bau'],
+            ['भ्', 'bh'], ['भ', 'bha'], ['भा', 'bhaa'], ['भि', 'bhi'], ['भी', 'bhi'], ['भु', 'bhu'], ['भू', 'bhu'], 
+            ['भे', 'bhe'], ['भै', 'bhai'], ['भो', 'bho'], ['भौ', 'bhau'], 
+            ['म्', 'm'], ['म', 'ma'], ['मा', 'maa'], ['मि', 'mi'], ['मी', 'mi'], ['मु', 'mu'], ['मू', 'mu'], ['मे', 'me'], 
+            ['मै', 'mai'], ['मो', 'mo'], ['मौ', 'mau'], 
+            ['य्', 'y'], ['य', 'ya'], ['या', 'yaa'], ['यि', 'yi'], ['यी', 'yi'], ['यु', 'yu'], ['यू', 'yu'], ['ये', 'ye'], 
+            ['यै', 'yai'], ['यो', 'yo'], ['यौ', 'yau'], 
+            ['र्', 'r'], ['र', 'ra'], ['रा', 'raa'], ['रि', 'ri'], ['री', 'ri'], ['रु', 'ru'], ['रू', 'ru'], ['रे', 're'], 
+            ['रै', 'rai'], ['रो', 'ro'], ['रौ', 'rau'], 
+            ['ल्', 'l'], ['ल', 'la'], ['ला', 'laa'], ['लि', 'li'], ['ली', 'li'], ['लु', 'lu'], ['लू', 'lu'], ['ले', 'le'], 
+            ['लै', 'lai'], ['लो', 'lo'], ['लौ', 'lau'],
+            ['व्', 'w'], ['व', 'wa'], ['वा', 'waa'], ['वि', 'wi'], ['वी', 'wi'], ['वु', 'wu'], ['वू', 'wu'], ['वे', 'we'], 
+            ['वै', 'wai'], ['वो', 'wo'], ['वौ', 'wau'], 
+            ['श्', 'sh'], ['श', 'sha'], ['शा', 'shaa'], ['शि', 'shi'], ['शी', 'shi'], ['शु', 'shu'], ['शू', 'shu'], 
+            ['शे', 'she'], ['शै', 'shai'], ['शो', 'sho'], ['शौ', 'shau'], 
+            ['ष्', 'sh'], ['ष', 'sha'], ['षा', 'shaa'], ['षि', 'shi'], ['षी', 'shi'], ['षु', 'shu'], ['षू', 'shu'], 
+            ['षे', 'she'], ['षै', 'shai'], ['षो', 'sho'], ['षौ', 'shau'], 
+            ['स्', 's'], ['स', 'sa'], ['सा', 'saa'], ['सि', 'si'], ['सी', 'si'], ['सु', 'su'], ['सू', 'su'], ['से', 'se'], 
+            ['सै', 'sai'], ['सो', 'so'], ['सौ', 'sau'],  
+            ['ह्', 'h'], ['ह', 'ha'], ['हा', 'haa'], ['हि', 'hi'], ['ही', 'hi'], ['हु', 'hu'], ['हू', 'hu'], ['हे', 'he'], 
+            ['है', 'hai'], ['हो', 'ho'], ['हौ', 'hau'], 
+            ['क्ष्', 'ksh'], ['क्ष', 'ksha'], ['क्षा', 'kshaa'], ['क्षि', 'kshi'], ['क्षी', 'kshi'], ['क्षु', 'kshu'], ['क्षू', 'kshu'], 
+            ['क्षे', 'kshe'], ['क्षै', 'kshai'], ['क्षो', 'kshau'], ['क्षौ', 'kshau'], 
+            ['त्र्', 'tr'], ['त्र', 'tra'], ['त्रा', 'traa'], ['त्रि', 'tri'], ['त्रृ', 'tri'], ['त्री', 'tri'], ['त्रु ', 'tru'], ['त्रू', 'tru'], 
+            ['त्रे', 'tre'], ['त्रै', 'trai'], ['त्रो', 'tro'], ['त्रौ', 'trau'], 
+            ['ज्ञ्', 'gy'], ['ज्ञ', 'gya'], ['ज्ञा', 'gyaa'], ['ज्ञि', 'gyi'], ['ज्ञी', 'gyi'], ['ज्ञु ', 'gyu'], ['ज्ञू', 'gyu'], 
+            ['ज्ञे', 'gye'], ['ज्ञै', 'gyai'], ['ज्ञो', 'gyo'], ['ज्ञौ', 'gyau'],
+            ['श्र्', 'shr'], ['श्र', 'shra'], ['श्रा', 'shraa'], ['श्रि', 'shri'], ['श्रृ', 'shri'], ['श्री', 'shri'], ['श्रु', 'shru'], ['श‍ृ', 'shri'], ['श्रू', 'shru'], ['श्रे', 'shre'], ['श्रै', 'shrai'], ['श्रो', 'shro'], ['श्रौ', 'shrau'],                                          
+        ]);
+
+        function convertDevanagariToSimplifiedPhonetic(devanagariInput) {
+            let phoneticOutput = '';
+            for (let i = 0; i < devanagariInput.length; i++) {
+                let char = devanagariInput[i];
+                let matched = false;
+
+                for (let len = Math.min(4, devanagariInput.length - i); len > 1; len--) {
+                    let segment = devanagariInput.substring(i, i + len);
+                    if (devanagariToSimplifiedPhoneticMap.has(segment)) {
+                        phoneticOutput += devanagariToSimplifiedPhoneticMap.get(segment);
+                        i += len - 1;
+                        matched = true;
+                        break;
+                    }
+                }
+
+                if (!matched) {
+                    if (i + 1 < devanagariInput.length && devanagariInput[i + 1] === 'ृ' &&
+                        devanagariToSimplifiedPhoneticMap.has(char) &&
+                        devanagariToSimplifiedPhoneticMap.get(char).endsWith('a')) {
+                        phoneticOutput += devanagariToSimplifiedPhoneticMap.get(char).slice(0, -1) + 'ri';
+                        i += 1;
+                        matched = true;
+                    } else if (devanagariToSimplifiedPhoneticMap.has(char)) {
+                        phoneticOutput += devanagariToSimplifiedPhoneticMap.get(char);
+                        matched = true;
+                    }
+                }
+                
+                if (!matched) {
+                    phoneticOutput += char;
+                }
+            }
+            return phoneticOutput;
+        }
+
+        async function generateAndDisplaySuggestions() {
+            if (!suggestionsEnabled) {
+                displaySuggestions([]);
+                return;
+            }
+
+            const { conceptualString: conceptualInput } = getConceptualDetails(textarea.value);
+            const conceptualCursorPos = getConceptualDetails(textarea.value).visibleToConceptualMap.get(textarea.selectionStart) || conceptualInput.length;
+
+            let inEnglishBlock = false;
+            let textBeforeCursorVisible = textarea.value.substring(0, textarea.selectionStart);
+            let openBraceCount = (textBeforeCursorVisible.match(/{/g) || []).length;
+            let closeBraceCount = (textBeforeCursorVisible.match(/}/g) || []).length;
+            if (openBraceCount > closeBraceCount) {
+                inEnglishBlock = true;
+            }
+
+            if (inEnglishBlock) {
+                displaySuggestions([]);
+                return;
+            }
+
+            let currentConceptualSegmentStartForBarhakhari = 0;
+            for (let k = conceptualCursorPos - 1; k >= 0; k--) {
+                if (conceptualInput[k] === ' ' || conceptualInput[k] === '/') {
+                    currentConceptualSegmentStartForBarhakhari = k + 1;
+                    break;
+                }
+            }
+            let currentConceptualPhoneticSequenceForBarhakhari = conceptualInput.substring(currentConceptualSegmentStartForBarhakhari, conceptualCursorPos);
+            
+            let wordSuggestionConceptualStart = 0;
+            for (let k = conceptualCursorPos - 1; k >= 0; k--) {
+                if (conceptualInput[k] === ' ') {
+                    wordSuggestionConceptualStart = k + 1;
+                    break;
+                }
+            }
+            let currentConceptualWordPhoneticSequence = conceptualInput.substring(wordSuggestionConceptualStart, conceptualCursorPos);
+
+            const outputText = outputArea.value;
+            let outputCursorPos = 0; 
+            
+            let foundOutputCursorPos = false;
+            for (let i = 0; i < outputToConceptualMap.length; i++) {
+                const mapEntry = outputToConceptualMap[i];
+                if (conceptualCursorPos >= mapEntry.conceptualStart && conceptualCursorPos <= mapEntry.conceptualEnd) {
+                    outputCursorPos = i + (conceptualCursorPos - mapEntry.conceptualStart);
+                    foundOutputCursorPos = true;
+                    break;
+                }
+                if (conceptualCursorPos < mapEntry.conceptualStart) {
+                    outputCursorPos = i;
+                    foundOutputCursorPos = true;
+                    break;
+                }
+            }
+            if (!foundOutputCursorPos) {
+                 outputCursorPos = outputText.length;
+            }
+
+            outputCursorPos = Math.min(outputCursorPos, outputText.length);
+
+            let outputWordStart = outputText.lastIndexOf(' ', outputCursorPos - 1) + 1;
+            let currentOutputDevanagariPrefix = outputText.substring(outputWordStart, outputCursorPos);
+            currentOutputDevanagariPrefix = currentOutputDevanagariPrefix.replace(/^[^\p{L}]*|[^\p{L}]*$/gu, '');
+
+            let allSuggestions = [];
+            let historyData = {};
+
+            if (currentConceptualPhoneticSequenceForBarhakhari.length > 0 && db && userId) {
+                try {
+                    const historyDocRef = doc(db, 'artifacts', appId, 'users', userId, 'typingHistory', currentConceptualPhoneticSequenceForBarhakhari.toLowerCase());
+                    const historyDocSnap = await getDoc(historyDocRef);
+                    if (historyDocSnap.exists()) {
+                        historyData = historyDocSnap.data();
+                    }
+                } catch (error) {
+                    console.error("Error fetching typing history:", error);
+                }
+            }
+
+            if (currentConceptualPhoneticSequenceForBarhakhari.length > 0) {
+                for (let i = currentConceptualPhoneticSequenceForBarhakhari.length; i > 0; i--) {
+                    let segment = currentConceptualPhoneticSequenceForBarhakhari.substring(currentConceptualPhoneticSequenceForBarhakhari.length - i);
+                    let lookupKey = caseSensitiveKeys.has(segment) ? segment : segment.toLowerCase();
+
+                    if (barhakhariMap.has(lookupKey)) {
+                        barhakhariMap.get(lookupKey).forEach(nepaliChar => {
+                            const existing = allSuggestions.find(s => s.nepaliChar === nepaliChar && s.isWord === false);
+                            if (!existing) {
+                                allSuggestions.push({
+                                    englishKey: segment,
+                                    nepaliChar: nepaliChar,
+                                    startIndex: currentConceptualSegmentStartForBarhakhari + (currentConceptualPhoneticSequenceForBarhakhari.length - segment.length),
+                                    count: historyData[nepaliChar] || 0,
+                                    isWord: false
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+
+            if (currentConceptualWordPhoneticSequence.length > 0) {
+                const lowercasePrefix = currentConceptualWordPhoneticSequence.toLowerCase();
+                const matchedCommonKeys = Array.from(commonSpellingDictionary.keys()).filter(key => key.startsWith(lowercasePrefix));
+                matchedCommonKeys.forEach(matchedKey => {
+                    const nepaliWord = commonSpellingDictionary.get(matchedKey);
+                    const isDuplicate = allSuggestions.some(sug => sug.nepaliChar === nepaliWord && sug.isWord);
+                    if (!isDuplicate) {
+                        allSuggestions.push({
+                            englishKey: currentConceptualWordPhoneticSequence, 
+                            nepaliChar: nepaliWord,
+                            startIndex: wordSuggestionConceptualStart, 
+                            count: historyData[nepaliWord] || 0,
+                            isWord: true,
+                            fullReplacementPhonetic: matchedKey
+                        });
+                    }
+                });
+            }
+
+            if (currentOutputDevanagariPrefix.length > 0) {
+                const matchedWords = nepaliDictionary.filter(word => word.startsWith(currentOutputDevanagariPrefix));
+                matchedWords.forEach(word => {
+                    const isDuplicateBarhakhari = allSuggestions.some(sug => sug.nepaliChar === word && !sug.isWord);
+                    const isDuplicateCommon = allSuggestions.some(sug => sug.nepaliChar === word && sug.isWord);
+                    if (!isDuplicateBarhakhari && !isDuplicateCommon) {
+                        allSuggestions.push({
+                            englishKey: currentConceptualWordPhoneticSequence, 
+                            nepaliChar: word,
+                            startIndex: wordSuggestionConceptualStart,
+                            count: historyData[word] || 0,
+                            isWord: true
+                        });
+                    }
+                });
+            }
+
+            const sequenceLC = currentConceptualPhoneticSequenceForBarhakhari.toLowerCase();
+            if (sequenceLC.endsWith('ri') && sequenceLC.length > 2) {
+                const prefix = currentConceptualPhoneticSequenceForBarhakhari.slice(0, -2);
+                const prefixLC = prefix.toLowerCase();
+                const riForms = barhakhariMap.get('ri') || [];
+                const riMatra = riForms.find(f => f === 'ृ') || 'ृ';
+
+                let foundConsonant = false;
+                for (let len = Math.min(6, prefix.length); len > 0; len--) {
+                    const consonantSegment = prefix.slice(-len);
+                    const lookupKey = caseSensitiveKeys.has(consonantSegment) ? consonantSegment : consonantSegment.toLowerCase();
+
+                    if (barhakhariMap.has(lookupKey)) {
+                        const forms = barhakhariMap.get(lookupKey);
+                        const halantaForms = forms.filter(f => f.endsWith('्'));
+
+                        if (halantaForms.length > 0) {
+                            foundConsonant = true;
+                            const prePrefix = prefix.slice(0, -len);
+
+                            halantaForms.forEach(form => {
+                                const baseConsonant = form.slice(0, -1);
+                                const combined = baseConsonant + riMatra;
+
+                                const existing = allSuggestions.find(s => s.nepaliChar === combined && s.isWord === false);
+                                if (!existing) {
+                                    allSuggestions.push({
+                                        englishKey: consonantSegment + 'ri',
+                                        nepaliChar: combined,
+                                        startIndex: currentConceptualSegmentStartForBarhakhari + prefix.length - len,
+                                        count: historyData[combined] || 0,
+                                        isWord: false
+                                    });
+                                }
+                            });
+                            break;
+                        }
+                    }
+                }
+            }
+
+            const sortedSuggestions = allSuggestions.sort((a, b) => {
+                if (a.isWord === b.isWord) {
+                    if (b.count !== a.count) {
+                        return b.count - a.count;
+                    }
+                    if (!a.isWord && !b.isWord) {
+                         return b.englishKey.length - a.englishKey.length;
+                    } else if (a.isWord && b.isWord) {
+                        return a.nepaliChar.length - b.nepaliChar.length;
+                    }
+                }
+                return (a.isWord === false ? -1 : 1);
+            });
+
+            displaySuggestions(sortedSuggestions);
+        }
+
+        async function selectSuggestion(nepaliChar, englishKey, startIndex, isWord = false, fullReplacementPhonetic = undefined) {
+            const currentVisibleValue = textarea.value;
+            const { conceptualToVisibleMap, visibleToConceptualMap, conceptualLength } = getConceptualDetails(currentVisibleValue);
+            const cursorActualVisiblePos = textarea.selectionStart;
+
+            let segmentVisibleStart = 0;
+            let segmentVisibleEnd = cursorActualVisiblePos;
+
+            if (isWord) {
+                const conceptualStartOfWordFragment = startIndex;
+                const conceptualEndOfWordFragment = startIndex + englishKey.length;
+
+                segmentVisibleStart = conceptualToVisibleMap.has(conceptualStartOfWordFragment)
+                    ? conceptualToVisibleMap.get(conceptualStartOfWordFragment)
+                    : 0;
+
+                let tempConceptualEnd = conceptualEndOfWordFragment;
+                let foundVisibleEnd = false;
+                while (tempConceptualEnd > conceptualStartOfWordFragment) {
+                    if (conceptualToVisibleMap.has(tempConceptualEnd - 1)) {
+                        segmentVisibleEnd = conceptualToVisibleMap.get(tempConceptualEnd - 1) + 1;
+                        foundVisibleEnd = true;
+                        break;
+                    }
+                    tempConceptualEnd--;
+                }
+                if (!foundVisibleEnd) {
+                    segmentVisibleEnd = segmentVisibleStart;
+                }
+                
+                segmentVisibleEnd = Math.max(segmentVisibleEnd, cursorActualVisiblePos);
+
+                for (let k = conceptualStartOfWordFragment; k < conceptualEndOfWordFragment; k++) {
+                    hiddenModifierPoints.delete(k);
+                    slashSplitPoints.delete(k);
+                    userOverrides.delete(k);
+                }
+
+                let fullPhoneticOfSelectedWord;
+                if (fullReplacementPhonetic) {
+                    fullPhoneticOfSelectedWord = fullReplacementPhonetic;
+                } else {
+                    fullPhoneticOfSelectedWord = convertDevanagariToSimplifiedPhonetic(nepaliChar);
+                }
+
+                const newTextAreaValue = currentVisibleValue.substring(0, segmentVisibleStart) +
+                                         fullPhoneticOfSelectedWord +
+                                         currentVisibleValue.substring(segmentVisibleEnd);
+
+                textarea.value = newTextAreaValue;
+
+                const { visibleChangeStart, visibleOldEnd, visibleNewEnd } = getVisibleTextDiff(currentVisibleValue, newTextAreaValue);
+                adjustConceptualMapsBasedOnVisibleChange(currentVisibleValue, newTextAreaValue, visibleChangeStart, visibleOldEnd, visibleNewEnd);
+
+                const conceptualStartForFixedSegment = conceptualStartOfWordFragment;
+                const conceptualEndForFixedSegment = conceptualStartForFixedSegment + fullPhoneticOfSelectedWord.length;
+
+                const { conceptualLength: updatedConceptualLength } = getConceptualDetails(newTextAreaValue);
+
+                if (conceptualEndForFixedSegment > updatedConceptualLength) {
+                    console.error(`FATAL ERROR: Calculated conceptual end (${conceptualEndForFixedSegment}) for word "${nepaliChar}" is beyond the updated conceptual string length (${updatedConceptualLength}). Fixed segment will not be saved. This indicates a serious desync.`);
+                } else {
+                    fixedOutputSegments.set(conceptualStartForFixedSegment, {
+                        conceptualEnd: conceptualEndForFixedSegment,
+                        devanagariWord: nepaliChar
+                    });
+                }
+                
+                userOverrides.forEach((value, key) => {
+                    if (key >= conceptualStartForFixedSegment && key < conceptualEndForFixedSegment) {
+                        userOverrides.delete(key);
+                    }
+                });
+
+                if (db && userId) {
+                    try {
+                        const historyDocRef = doc(db, 'artifacts', appId, 'users', userId, 'typingHistory', nepaliChar); 
+                        await setDoc(historyDocRef, {
+                            [nepaliChar]: increment(1)
+                        }, {
+                            merge: true
+                        });
+                    } catch (error) {
+                        console.error("Error updating typing history for word:", error);
+                    }
+                }
+
+            } else {
+                if (conceptualToVisibleMap.has(startIndex)) {
+                    segmentVisibleStart = conceptualToVisibleMap.get(startIndex);
+                } else {
+                    let tempVisiblePrefix = currentVisibleValue.substring(0, cursorActualVisiblePos);
+                    let lastSpace = tempVisiblePrefix.lastIndexOf(' ');
+                    let lastSlash = tempVisiblePrefix.lastIndexOf('/');
+                    segmentVisibleStart = Math.max(lastSpace, lastSlash) + 1;
+                }
+                segmentVisibleEnd = cursorActualVisiblePos;
+
+                userOverrides.set(startIndex, {
+                    originalKey: englishKey,
+                    selectedNepali: nepaliChar
+                });
+
+                if (db && userId) {
+                    try {
+                        const historyDocRef = doc(db, 'artifacts', appId, 'users', userId, 'typingHistory', englishKey.toLowerCase());
+                        await setDoc(historyDocRef, {
+                            [nepaliChar]: increment(1)
+                        }, {
+                            merge: true
+                        });
+                    } catch (error) {
+                        console.error("Error updating typing history:", error);
+                    }
+                }
+            }
+
+            updateOutput();
+            displaySuggestions([]); 
+            textarea.focus();
+        }
+
+        async function selectAllOutput() {
+            outputArea.select();
+            outputArea.setSelectionRange(0, outputArea.value.length);
+        }
+
+        async function copyOutput() {
+            try {
+                await navigator.clipboard.writeText(outputArea.value);
+                console.log('Text copied to clipboard!');
+            } catch (err) {
+                console.error('Failed to copy text:', err);
+            }
+        }
+
+        function getVisibleTextDiff(oldText, newText) {
+            let i = 0;
+            while (i < oldText.length && i < newText.length && oldText[i] === newText[i]) {
+                i++;
+            }
+            const visibleChangeStart = i;
+
+            let oldEnd = oldText.length;
+            let newEnd = newText.length;
+            while (oldEnd > visibleChangeStart && newEnd > visibleChangeStart && oldText[oldEnd - 1] === newText[newEnd - 1]) {
+                oldEnd--;
+                newEnd--;
+            }
+            const visibleOldEnd = oldEnd;
+            const visibleNewEnd = newEnd;
+
+            return { visibleChangeStart, visibleOldEnd, visibleNewEnd };
+        }
+
+        function updateOutput() {
+            const { conceptualString: conceptualInput } = getConceptualDetails(textarea.value);
+            let finalOutput = '';
+            outputToConceptualMap = [];
+            let i = 0;
+
+            while (i < conceptualInput.length) {
+                let segmentProcessed = false;
+                let conceptualSegmentLengthUsed = 0;
+
+                if (fixedOutputSegments.has(i)) {
+                    const fixedSegment = fixedOutputSegments.get(i);
+                    if (fixedSegment.conceptualEnd <= conceptualInput.length) {
+                        finalOutput += fixedSegment.devanagariWord;
+                        conceptualSegmentLengthUsed = fixedSegment.conceptualEnd - i;
+                        for (let k = 0; k < fixedSegment.devanagariWord.length; k++) {
+                            outputToConceptualMap.push({ conceptualStart: i, conceptualEnd: fixedSegment.conceptualEnd, type: 'fixed-word' });
+                        }
+                        i = fixedSegment.conceptualEnd;
+                        segmentProcessed = true;
+                    } else {
+                        fixedOutputSegments.delete(i);
+                    }
+                }
+
+                if (!segmentProcessed && conceptualInput[i] === '{') {
+                    const closingBraceIndex = conceptualInput.indexOf('}', i + 1);
+                    if (closingBraceIndex !== -1) {
+                        const englishText = conceptualInput.substring(i + 1, closingBraceIndex);
+                        finalOutput += englishText;
+                        conceptualSegmentLengthUsed = (closingBraceIndex + 1) - i;
+                        for (let k = 0; k < englishText.length; k++) {
+                            outputToConceptualMap.push({ conceptualStart: i + 1 + k, conceptualEnd: i + 1 + k + 1, type: 'english' });
+                        }
+                        i += conceptualSegmentLengthUsed;
+                        segmentProcessed = true;
+                    } else {
+                        const remainingEnglish = conceptualInput.substring(i + 1);
+                        finalOutput += remainingEnglish;
+                        conceptualSegmentLengthUsed = conceptualInput.length - i;
+                         for (let k = 0; k < remainingEnglish.length; k++) {
+                            outputToConceptualMap.push({ conceptualStart: i + 1 + k, conceptualEnd: i + 1 + k + 1, type: 'english' });
+                        }
+                        i = conceptualInput.length;
+                        segmentProcessed = true;
+                    }
+                }
+
+                if (!segmentProcessed && userOverrides.has(i)) {
+                    const override = userOverrides.get(i);
+                    const phoneticSegment = conceptualInput.substring(i, i + override.originalKey.length);
+                    let lookupKey = caseSensitiveKeys.has(phoneticSegment) ? phoneticSegment : phoneticSegment.toLowerCase();
+
+                    if (lookupKey === (caseSensitiveKeys.has(override.originalKey) ? override.originalKey : override.originalKey.toLowerCase())) {
+                        let selected = override.selectedNepali;
+                        let overrideLength = override.originalKey.length;
+                        const nextIndex = i + overrideLength;
+                        if (nextIndex < conceptualInput.length && conceptualInput[nextIndex] === '\\' && selected.endsWith('्')) {
+                            selected = selected.slice(0, -1);
+                            overrideLength += 1;
+                        }
+                        finalOutput += selected;
+                        conceptualSegmentLengthUsed = overrideLength;
+                        for (let k = 0; k < selected.length; k++) {
+                            outputToConceptualMap.push({ conceptualStart: i, conceptualEnd: i + conceptualSegmentLengthUsed, type: 'override' });
+                        }
+                        i += conceptualSegmentLengthUsed;
+                        segmentProcessed = true;
+                    } else {
+                        userOverrides.delete(i);
+                    }
+                }
+
+                if (!segmentProcessed) {
+                    if (i === 0 || conceptualInput[i - 1] === ' ') {
+                        let wordEnd = conceptualInput.indexOf(' ', i);
+                        if (wordEnd === -1) wordEnd = conceptualInput.length;
+
+                        let hasInvalidChar = false;
+                        for (let j = i; j < wordEnd; j++) {
+                            if (conceptualInput[j] === '/' || conceptualInput[j] === '*' || conceptualInput[j] === '**') {
+                                hasInvalidChar = true;
+                                break;
+                            }
+                        }
+
+                        if (!hasInvalidChar) {
+                            const potentialWord = conceptualInput.substring(i, wordEnd).toLowerCase();
+                            if (commonSpellingDictionary.has(potentialWord)) {
+                                const nepaliWord = commonSpellingDictionary.get(potentialWord);
+                                finalOutput += nepaliWord;
+                                conceptualSegmentLengthUsed = wordEnd - i;
+                                for (let k = 0; k < nepaliWord.length; k++) {
+                                    outputToConceptualMap.push({ conceptualStart: i, conceptualEnd: i + conceptualSegmentLengthUsed, type: 'common-spelling' });
+                                }
+                                i += conceptualSegmentLengthUsed;
+                                segmentProcessed = true;
+                            }
+                        }
+                    }
+                }
+
+                if (!segmentProcessed) {
+                    if (conceptualInput[i] === '/') {
+                        conceptualSegmentLengthUsed = 1;
+                        outputToConceptualMap.push({ conceptualStart: i, conceptualEnd: i + conceptualSegmentLengthUsed, type: 'ignored-separator' });
+                        i += conceptualSegmentLengthUsed;
+                        segmentProcessed = true;
+                    } else if (conceptualInput[i] === '\\') {
+                        conceptualSegmentLengthUsed = 1;
+                        outputToConceptualMap.push({ conceptualStart: i, conceptualEnd: i + conceptualSegmentLengthUsed, type: 'ignored-modifier' });
+                        i += conceptualSegmentLengthUsed;
+                        segmentProcessed = true;
+                    } else {
+                        let longestMatchKey = '';
+                        let bestNepaliChar = '';
+                        let currentSegmentEndIndex = conceptualInput.length;
+                        for(let k = i; k < conceptualInput.length; k++) {
+                            if (conceptualInput[k] === ' ' || conceptualInput[k] === '/') {
+                                currentSegmentEndIndex = k;
+                                break;
+                            }
+                        }
+                        const maxSearchLength = Math.min(6, currentSegmentEndIndex - i);
+
+                        for (let len = maxSearchLength; len > 0; len--) {
+                            let segment = conceptualInput.substring(i, i + len); 
+                            let lookupKey = caseSensitiveKeys.has(segment) ? segment : segment.toLowerCase();
+
+                            if (barhakhariMap.has(lookupKey)) {
+                                longestMatchKey = segment;
+                                break;
+                            }
+                        }
+                        
+                        if (longestMatchKey) {
+                            const forms = barhakhariMap.get(caseSensitiveKeys.has(longestMatchKey) ? longestMatchKey : longestMatchKey.toLowerCase());
+                            let selectedForm = forms[0];
+                            let matchLength = longestMatchKey.length;
+                            const nextIndex = i + matchLength;
+                            if (nextIndex < conceptualInput.length && conceptualInput[nextIndex] === '\\' && selectedForm.endsWith('्')) {
+                                selectedForm = selectedForm.slice(0, -1);
+                                matchLength += 1;
+                            }
+                            bestNepaliChar = selectedForm;
+                            conceptualSegmentLengthUsed = matchLength;
+                            finalOutput += bestNepaliChar;
+                            for (let k = 0; k < bestNepaliChar.length; k++) {
+                                outputToConceptualMap.push({ conceptualStart: i, conceptualEnd: i + conceptualSegmentLengthUsed, type: 'phonetic' });
+                            }
+                            i += conceptualSegmentLengthUsed;
+                        } else {
+                            finalOutput += conceptualInput[i];
+                            conceptualSegmentLengthUsed = 1;
+                            outputToConceptualMap.push({ conceptualStart: i, conceptualEnd: i + conceptualSegmentLengthUsed, type: 'direct' });
+                            i += conceptualSegmentLengthUsed;
+                        }
+                    }
+                }
+            }
+            outputArea.value = finalOutput;
+        }
+
+        let shiftPressedAlone = false;
+
+        textarea.addEventListener('keydown', (event) => {
+            isNavigationKeyPressed = false;
+            const suggestions = suggestionPopup.querySelectorAll('.suggestion-btn');
+            const numSuggestions = suggestions.length;
+
+            const isCtrlPressed = event.ctrlKey;
+            const isShiftPressed = event.shiftKey;
+            const isAltMetaNotPressed = !event.altKey && !event.metaKey;
+
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                suggestionsEnabled = !suggestionsEnabled;
+                if (!suggestionsEnabled) {
+                    displaySuggestions([]);
+                } else {
+                    generateAndDisplaySuggestions();
+                }
+                textarea.focus();
+                return;
+            }
+
+            if (event.key === 'Shift') {
+                event.preventDefault();
+                if (!event.repeat) {
+                    shiftPressedAlone = true;
+                }
+                return;
+            }
+
+            if (isShiftPressed && event.key !== 'Shift') {
+                shiftPressedAlone = false;
+            }
+
+            if (event.key === ' ') {
+                if (highlightedButton) {
+                    event.preventDefault();
+                    insertZWNJBtn.classList.remove('highlighted');
+                    insertZWJBtn.classList.remove('highlighted');
+                    highlightedButton = null;
+                    return;
+                } else {
+                    clearSuggestionHighlight();
+                    selectedSuggestionIndex = -1;
+                    return;
+                }
+            }
+
+            if (event.key === '/') {
+                clearSuggestionHighlight();
+                selectedSuggestionIndex = -1;
+                return;
+            }
+
+            if (!suggestionsEnabled || numSuggestions === 0) {
+                if (isCtrlPressed && isShiftPressed && (event.key === 'Control' || event.key === 'Shift')) {
+                    event.preventDefault();
+                }
+                return;
+            }
+
+            const isModifierKeyOnly = (event.key === 'Control' || event.key === 'Shift' || event.key === 'Alt' || event.key === 'Meta');
+            if (isCtrlPressed && isShiftPressed && !isModifierKeyOnly && isAltMetaNotPressed && (event.key !== 'Enter')) {
+                if (!event.repeat) {
+                    selectedSuggestionIndex = (selectedSuggestionIndex + 1) % numSuggestions;
+                    highlightSuggestion(selectedSuggestionIndex);
+                }
+                event.preventDefault();
+                return;
+            }
+
+            const currentHighlighted = suggestions[selectedSuggestionIndex];
+            if (!currentHighlighted) return;
+            const currentRect = currentHighlighted.getBoundingClientRect();
+            const currentOffsetTop = currentRect.top;
+            const currentOffsetLeft = currentRect.left;
+            const currentOffsetRight = currentRect.right;
+            const tolerance = 5;
+            const buttonHeight = currentRect.height;
+            const rowTolerance = buttonHeight / 2;
+
+            let nextIndex = -1;
+
+            if ((event.key === 'ArrowRight' || (event.key === 'Tab' && !event.shiftKey)) && !isCtrlPressed && isAltMetaNotPressed) {
+                event.preventDefault();
+                isNavigationKeyPressed = true;
+                let candidates = [];
+                for (let i = 0; i < numSuggestions; i++) {
+                    if (i === selectedSuggestionIndex) continue;
+                    const sug = suggestions[i];
+                    const sugRect = sug.getBoundingClientRect();
+                    if (sugRect.left > currentOffsetRight - tolerance && Math.abs(sugRect.top - currentOffsetTop) < rowTolerance) {
+                        candidates.push({ index: i, rect: sugRect });
+                    }
+                }
+
+                if (candidates.length > 0) {
+                    candidates.sort((a, b) => {
+                        if (Math.abs(a.rect.top - currentOffsetTop) !== Math.abs(b.rect.top - currentOffsetTop)) {
+                            return Math.abs(a.rect.top - currentOffsetTop) - Math.abs(b.rect.top - currentOffsetTop);
+                        }
+                        return a.rect.left - b.rect.left;
+                    });
+                    nextIndex = candidates[0].index;
+                } else {
+                    nextIndex = (selectedSuggestionIndex + 1) % numSuggestions;
+                }
+                if (nextIndex !== -1) {
+                    selectedSuggestionIndex = nextIndex;
+                    highlightSuggestion(selectedSuggestionIndex);
+                }
+                return;
+            }
+
+            if ((event.key === 'ArrowLeft' || (event.key === 'Tab' && event.shiftKey)) && !isCtrlPressed && isAltMetaNotPressed) {
+                event.preventDefault();
+                isNavigationKeyPressed = true;
+                let candidates = [];
+                for (let i = 0; i < numSuggestions; i++) {
+                    if (i === selectedSuggestionIndex) continue;
+                    const sug = suggestions[i];
+                    const sugRect = sug.getBoundingClientRect();
+                    if (sugRect.right < currentOffsetLeft + tolerance && Math.abs(sugRect.top - currentOffsetTop) < rowTolerance) {
+                        candidates.push({ index: i, rect: sugRect });
+                    }
+                }
+
+                if (candidates.length > 0) {
+                    candidates.sort((a, b) => {
+                        if (Math.abs(a.rect.top - currentOffsetTop) !== Math.abs(b.rect.top - currentOffsetTop)) {
+                            return Math.abs(a.rect.top - currentOffsetTop) - Math.abs(b.rect.top - currentOffsetTop);
+                        }
+                        return b.rect.left - a.rect.left;
+                    });
+                    nextIndex = candidates[0].index;
+                } else {
+                    nextIndex = (selectedSuggestionIndex - 1 + numSuggestions) % numSuggestions;
+                }
+                if (nextIndex !== -1) {
+                    selectedSuggestionIndex = nextIndex;
+                    highlightSuggestion(selectedSuggestionIndex);
+                }
+                return;
+            }
+
+            if (event.key === 'ArrowDown' && !isCtrlPressed && !isShiftPressed && isAltMetaNotPressed) {
+                event.preventDefault();
+                isNavigationKeyPressed = true;
+                let candidates = [];
+                for (let i = 0; i < numSuggestions; i++) {
+                    if (i === selectedSuggestionIndex) continue;
+                    const sug = suggestions[i];
+                    const sugRect = sug.getBoundingClientRect();
+                    if (sugRect.top > currentOffsetTop) {
+                        candidates.push({ index: i, rect: sugRect });
+                    }
+                }
+
+                if (candidates.length > 0) {
+                    candidates.sort((a, b) => {
+                        if (a.rect.top !== b.rect.top) {
+                            return a.rect.top - b.rect.top;
+                        }
+                        return Math.abs(a.rect.left - currentOffsetLeft) - Math.abs(b.rect.left - currentOffsetLeft);
+                    });
+
+                    const firstRowTop = candidates[0].rect.top;
+                    const firstRowCandidates = candidates.filter(c => c.rect.top === firstRowTop);
+
+                    if (firstRowCandidates.length > 0) {
+                        firstRowCandidates.sort((a, b) =>
+                            Math.abs(a.rect.left - currentOffsetLeft) - Math.abs(b.rect.left - currentOffsetLeft)
+                        );
+                        nextIndex = firstRowCandidates[0].index;
+                    }
+                }
+
+                if (nextIndex === -1 && numSuggestions > 0) {
+                    candidates = [];
+                    for (let i = 0; i < numSuggestions; i++) {
+                        const sug = suggestions[i];
+                        const sugRect = sug.getBoundingClientRect();
+                        candidates.push({ index: i, rect: sugRect });
+                    }
+                    
+                    candidates.sort((a, b) => 
+                        Math.abs(a.rect.left - currentOffsetLeft) - Math.abs(b.rect.left - currentOffsetLeft)
+                    );
+                    
+                    nextIndex = candidates[0].index;
+                }
+
+                if (nextIndex !== -1) {
+                    selectedSuggestionIndex = nextIndex;
+                    highlightSuggestion(selectedSuggestionIndex);
+                }
+                return;
+            }
+
+            if (event.key === 'ArrowUp' && !isCtrlPressed && !isShiftPressed && isAltMetaNotPressed) {
+                event.preventDefault();
+                isNavigationKeyPressed = true;
+                let candidates = [];
+                for (let i = 0; i < numSuggestions; i++) {
+                    if (i === selectedSuggestionIndex) continue;
+                    const sug = suggestions[i];
+                    const sugRect = sug.getBoundingClientRect();
+                    if (sugRect.top < currentOffsetTop) {
+                        candidates.push({ index: i, rect: sugRect });
+                    }
+                }
+
+                if (candidates.length > 0) {
+                    candidates.sort((a, b) => {
+                        if (a.rect.top !== b.rect.top) {
+                            return b.rect.top - a.rect.top;
+                        }
+                        return Math.abs(a.rect.left - currentOffsetLeft) - Math.abs(b.rect.left - currentOffsetLeft);
+                    });
+
+                    const firstRowTop = candidates[0].rect.top;
+                    const firstRowCandidates = candidates.filter(c => c.rect.top === firstRowTop);
+
+                    if (firstRowCandidates.length > 0) {
+                        firstRowCandidates.sort((a, b) =>
+                            Math.abs(a.rect.left - currentOffsetLeft) - Math.abs(b.rect.left - currentOffsetLeft)
+                        );
+                        nextIndex = firstRowCandidates[0].index;
+                    }
+                }
+
+                if (nextIndex === -1 && numSuggestions > 0) {
+                    candidates = [];
+                    for (let i = 0; i < numSuggestions; i++) {
+                        const sug = suggestions[i];
+                        const sugRect = sug.getBoundingClientRect();
+                        candidates.push({ index: i, rect: sugRect });
+                    }
+                    
+                    candidates.sort((a, b) => 
+                        Math.abs(a.rect.left - currentOffsetLeft) - Math.abs(b.rect.left - currentOffsetLeft)
+                    );
+                    
+                    let bottomMostCandidates = [];
+                    let maxBottomTop = -Infinity;
+                    if(candidates.length > 0) {
+                        maxBottomTop = candidates.reduce((max, c) => Math.max(max, c.rect.top), -Infinity);
+                        bottomMostCandidates = candidates.filter(c => c.rect.top === maxBottomTop);
+                    }
+
+                    if(bottomMostCandidates.length > 0) {
+                        bottomMostCandidates.sort((a,b) => a.rect.left - b.rect.left);
+                        nextIndex = bottomMostCandidates[0].index;
+                    } else if (candidates.length > 0) {
+                        nextIndex = candidates[0].index;
+                    }
+                }
+
+                if (nextIndex !== -1) {
+                    selectedSuggestionIndex = nextIndex;
+                    highlightSuggestion(selectedSuggestionIndex);
+                }
+                return;
+            }
+
+            if (event.key === 'Enter') {
+                if (highlightedButton) {
+                    event.preventDefault();
+                    const btnToClick = highlightedButton === 'zwnj' ? insertZWNJBtn : insertZWJBtn;
+                    btnToClick.click();
+                    insertZWNJBtn.classList.remove('highlighted');
+                    insertZWJBtn.classList.remove('highlighted');
+                    highlightedButton = null;
+                    return;
+                }
+                if (selectedSuggestionIndex !== -1 && numSuggestions > 0) {
+                    event.preventDefault();
+                    const selectedBtn = suggestions[selectedSuggestionIndex];
+                    selectSuggestion(
+                        selectedBtn.dataset.nepaliChar,
+                        selectedBtn.dataset.englishKey,
+                        parseInt(selectedBtn.dataset.startIndex),
+                        selectedBtn.dataset.isWord === 'true',
+                        selectedBtn.dataset.fullReplacementPhonetic
+                    );
+                    return;
+                }
+                }
+            });
+
+        textarea.addEventListener('keyup', (event) => {
+            if (event.key === 'Shift' && shiftPressedAlone) {
+                event.preventDefault();
+                if (highlightedButton === null || highlightedButton === 'zwj') {
+                    highlightedButton = 'zwnj';
+                    insertZWNJBtn.classList.add('highlighted');
+                    insertZWJBtn.classList.remove('highlighted');
+                } else {
+                    highlightedButton = 'zwj';
+                    insertZWNJBtn.classList.remove('highlighted');
+                    insertZWJBtn.classList.add('highlighted');
+                }
+                shiftPressedAlone = false;
+                return;
+            }
+
+            shiftPressedAlone = false;
+
+            if (!isNavigationKeyPressed) {
+                updateOutput();
+                generateAndDisplaySuggestions();
+            }
+        });
+
+        textarea.addEventListener('beforeinput', (event) => {
+            const oldVisibleValue = textarea.value;
+            const cursorPos = textarea.selectionStart;
+
+            const {
+                conceptualString,
+                visibleToConceptualMap,
+            } = getConceptualDetails(oldVisibleValue);
+
+            const charTyped = event.data;
+
+            if (charTyped === '{') {
+                event.preventDefault();
+                const newValue = oldVisibleValue.substring(0, cursorPos) + '{}' + oldVisibleValue.substring(cursorPos);
+                textarea.value = newValue;
+                textarea.selectionStart = textarea.selectionEnd = cursorPos + 1;
+                lastProcessedTextAreaValue = newValue;
+                updateOutput();
+                generateAndDisplaySuggestions();
+                return;
+            }
+
+            if (charTyped === '/' || charTyped === '*' || charTyped === '**' || charTyped === '\\') {
+                event.preventDefault();
+
+                const conceptualInsertionPoint = visibleToConceptualMap.has(cursorPos)
+                    ? visibleToConceptualMap.get(cursorPos)
+                    : conceptualString.length;
+
+                if (charTyped === '/') {
+                    slashSplitPoints.add(conceptualInsertionPoint);
+                } else if (charTyped === '\\') {
+                    hiddenModifierPoints.set(conceptualInsertionPoint, '\\');
+                } else if (charTyped === '*') {
+                    if (hiddenModifierPoints.has(conceptualInsertionPoint - 1) && hiddenModifierPoints.get(conceptualInsertionPoint - 1) === '*') {
+                        hiddenModifierPoints.set(conceptualInsertionPoint - 1, '**');
+                    } else {
+                        hiddenModifierPoints.set(conceptualInsertionPoint, '*');
+                    }
+                } else if (charTyped === '**') {
+                    hiddenModifierPoints.set(conceptualInsertionPoint, '**');
+                }
+                
+                lastProcessedTextAreaValue = oldVisibleValue;
+                updateOutput();
+                generateAndDisplaySuggestions();
+                return;
+            }
+
+            if (event.inputType === 'deleteContentBackward' || event.inputType === 'deleteContentForward') {
+                let conceptualTargetIndex = -1;
+                
+                if (event.inputType === 'deleteContentBackward') {
+                    if (cursorPos === 0) return;
+                    const conceptualIdxBeforeCursor = visibleToConceptualMap.get(cursorPos - 1);
+                    if (conceptualIdxBeforeCursor !== undefined) {
+                        conceptualTargetIndex = conceptualIdxBeforeCursor;
+                    } else {
+                        let tempVisibleIdx = cursorPos - 1;
+                        while(tempVisibleIdx >= 0 && !visibleToConceptualMap.has(tempVisibleIdx)) {
+                            tempVisibleIdx--;
+                        }
+                        conceptualTargetIndex = (tempVisibleIdx >= 0 && visibleToConceptualMap.has(tempVisibleIdx)) 
+                                                ? visibleToConceptualMap.get(tempVisibleIdx) + 1
+                                                : 0;
+                    }
+                } else {
+                    if (cursorPos >= oldVisibleValue.length) return;
+                    const conceptualIdxAtCursor = visibleToConceptualMap.get(cursorPos);
+                    if (conceptualIdxAtCursor !== undefined) {
+                        conceptualTargetIndex = conceptualIdxAtCursor;
+                    } else {
+                        let tempVisibleIdx = cursorPos;
+                        while(tempVisibleIdx < oldVisibleValue.length && !visibleToConceptualMap.has(tempVisibleIdx)) {
+                            tempVisibleIdx++;
+                        }
+                        conceptualTargetIndex = (tempVisibleIdx < oldVisibleValue.length && visibleToConceptualMap.has(tempVisibleIdx))
+                                                ? visibleToConceptualMap.get(tempVisibleIdx)
+                                                : conceptualString.length;
+                    }
+                }
+                
+                if (conceptualTargetIndex !== -1 && (hiddenModifierPoints.has(conceptualTargetIndex) || slashSplitPoints.has(conceptualTargetIndex))) {
+                    event.preventDefault();
+
+                    let removedConceptualLength = 0;
+                    if (hiddenModifierPoints.has(conceptualTargetIndex)) {
+                        removedConceptualLength = hiddenModifierPoints.get(conceptualTargetIndex).length;
+                        hiddenModifierPoints.delete(conceptualTargetIndex);
+                    } else if (slashSplitPoints.has(conceptualTargetIndex)) {
+                        removedConceptualLength = 1;
+                        slashSplitPoints.delete(conceptualTargetIndex);
+                    }
+                    
+                    const shiftAmount = -removedConceptualLength;
+
+                    const adjustMapKeys = (map) => {
+                        const newMap = new Map();
+                        map.forEach((val, key) => {
+                            if (key < conceptualTargetIndex) newMap.set(key, val);
+                            else if (key >= conceptualTargetIndex + removedConceptualLength) newMap.set(key + shiftAmount, val);
+                        });
+                        return newMap;
+                    };
+
+                    const adjustSetValues = (set) => {
+                        const newSet = new Set();
+                        set.forEach(key => {
+                            if (key < conceptualTargetIndex) newSet.add(key);
+                            else if (key >= conceptualTargetIndex + removedConceptualLength) newSet.add(key + shiftAmount);
+                        });
+                        return newSet;
+                    };
+
+                    hiddenModifierPoints = adjustMapKeys(hiddenModifierPoints);
+                    slashSplitPoints = adjustSetValues(slashSplitPoints);
+                    userOverrides = adjustMapKeys(userOverrides);
+                    
+                    const newFixedOutputSegments = new Map();
+                    fixedOutputSegments.forEach((segment, key) => {
+                        if (key < conceptualTargetIndex && segment.conceptualEnd <= conceptualTargetIndex) {
+                            newFixedOutputSegments.set(key, segment);
+                        } 
+                        else if (key >= conceptualTargetIndex + removedConceptualLength) {
+                            newFixedOutputSegments.set(key + shiftAmount, {
+                                conceptualEnd: segment.conceptualEnd + shiftAmount,
+                                devanagariWord: segment.devanagariWord
+                            });
+                        }
+                    });
+                    fixedOutputSegments = newFixedOutputSegments;
+
+                    lastProcessedTextAreaValue = oldVisibleValue;
+                    updateOutput();
+                    generateAndDisplaySuggestions();
+                    return;
+                }
+            }
+            lastProcessedTextAreaValue = oldVisibleValue;
+        });
+
+        textarea.addEventListener('input', (event) => {
+            const oldVisibleValue = lastProcessedTextAreaValue;
+            const newVisibleValue = textarea.value;
+
+            const { visibleChangeStart, visibleOldEnd, visibleNewEnd } = getVisibleTextDiff(oldVisibleValue, newVisibleValue);
+
+            adjustConceptualMapsBasedOnVisibleChange(oldVisibleValue, newVisibleValue, visibleChangeStart, visibleOldEnd, visibleNewEnd);
+
+            updateOutput();
+            generateAndDisplaySuggestions();
+
+            lastProcessedTextAreaValue = newVisibleValue;
+        });
+
+        textarea.addEventListener('blur', () => {
+            setTimeout(() => {
+                const activeElement = document.activeElement;
+                const isInteractingWithOutputControls = (activeElement === outputArea ||
+                                                         activeElement === selectAllButton ||
+                                                         activeElement === copyButton);
+
+                if (!isInteractingWithOutputControls && !suggestionPopup.contains(activeElement)) {
+                }
+            }, 50);
+        });
+
+        outputArea.addEventListener('focus', () => {
+        });
+
+        outputArea.addEventListener('mousedown', (e) => {
+        });
+
+        let lastProcessedOutputValue = '';
+
+        outputArea.addEventListener('input', (event) => {
+            const newOutputValue = outputArea.value;
+            const oldOutputValue = lastProcessedOutputValue;
+            lastProcessedOutputValue = newOutputValue;
+
+            const { visibleChangeStart: outputChangeStart, visibleOldEnd: outputOldEnd, visibleNewEnd: outputNewEnd } = getVisibleTextDiff(oldOutputValue, newOutputValue);
+
+            if (outputOldEnd > outputChangeStart) {
+                let minConceptualIndexToDelete = Infinity;
+                let maxConceptualIndexToDelete = -Infinity;
+
+                for (let j = outputChangeStart; j < outputOldEnd; j++) {
+                    if (outputToConceptualMap[j]) {
+                        minConceptualIndexToDelete = Math.min(minConceptualIndexToDelete, outputToConceptualMap[j].conceptualStart);
+                        maxConceptualIndexToDelete = Math.max(maxConceptualIndexToDelete, outputToConceptualMap[j].conceptualEnd);
+                    }
+                }
+
+                if (minConceptualIndexToDelete !== Infinity && maxConceptualIndexToDelete !== -Infinity) {
+                    const {
+                        visibleToConceptualMap,
+                    } = getConceptualDetails(textarea.value);
+
+                    let inputVisibleStartToDelete = textarea.value.length;
+                    let inputVisibleEndToDelete = 0;
+
+                    for (let i = 0; i < textarea.value.length; i++) {
+                        const conceptualIdx = visibleToConceptualMap.get(i);
+                        if (conceptualIdx !== undefined && conceptualIdx >= minConceptualIndexToDelete && conceptualIdx < maxConceptualIndexToDelete) {
+                            inputVisibleStartToDelete = i;
+                            break;
+                        }
+                    }
+
+                    for (let i = textarea.value.length - 1; i >= 0; i--) {
+                        const conceptualIdx = visibleToConceptualMap.get(i);
+                        if (conceptualIdx !== undefined && conceptualIdx >= minConceptualIndexToDelete && conceptualIdx < maxConceptualIndexToDelete) {
+                            inputVisibleEndToDelete = i + 1;
+                            break;
+                        }
+                    }
+
+                    if (inputVisibleStartToDelete < inputVisibleEndToDelete) {
+                        const originalTextAreaValue = textarea.value;
+                        const newTextAreaValueAfterDeletion = originalTextAreaValue.substring(0, inputVisibleStartToDelete) + originalTextAreaValue.substring(inputVisibleEndToDelete);
+                        textarea.value = newTextAreaValueAfterDeletion;
+
+                        const { visibleChangeStart, visibleOldEnd, visibleNewEnd } = getVisibleTextDiff(originalTextAreaValue, newTextAreaValueAfterDeletion);
+                        adjustConceptualMapsBasedOnVisibleChange(originalTextAreaValue, newTextAreaValueAfterDeletion, visibleChangeStart, visibleOldEnd, visibleNewEnd);
+                        
+                        updateOutput();
+                        generateAndDisplaySuggestions();
+                        textarea.focus();
+                        return;
+                    }
+                }
+            }
+            
+            updateOutput();
+            generateAndDisplaySuggestions();
+            textarea.focus();
+        });
+
+        insertZWNJBtn.addEventListener('click', () => {
+            const cursorPos = textarea.selectionStart;
+            const oldValue = textarea.value;
+            const newValue = oldValue.substring(0, cursorPos) + '\u200C' + oldValue.substring(cursorPos);
+            textarea.value = newValue;
+            textarea.selectionStart = textarea.selectionEnd = cursorPos + 1;
+            lastProcessedTextAreaValue = newValue;
+            updateOutput();
+            generateAndDisplaySuggestions();
+            textarea.focus();
+        });
+
+        insertZWJBtn.addEventListener('click', () => {
+            const cursorPos = textarea.selectionStart;
+            const oldValue = textarea.value;
+            const newValue = oldValue.substring(0, cursorPos) + '\u200D' + oldValue.substring(cursorPos);
+            textarea.value = newValue;
+            textarea.selectionStart = textarea.selectionEnd = cursorPos + 1;
+            lastProcessedTextAreaValue = newValue;
+            updateOutput();
+            generateAndDisplaySuggestions();
+            textarea.focus();
+        });
+
+        selectAllButton.addEventListener('click', selectAllOutput);
+        copyButton.addEventListener('click', copyOutput);
+
+        window.addEventListener('load', () => {
+            lastProcessedOutputValue = outputArea.value;
+            updateOutput();
+            generateAndDisplaySuggestions();
+        });
+
+        // Common spelling dictionary
+        const commonSpellingDictionary = new Map([
+            ['nepal', 'नेपाल'],
+            ['kathmandu', 'काठमणडौँ'],
+            ['himalaya', 'हिमालय'],
+        ]);
+
+        // Nepali dictionary (simplified for example)
+        const nepaliDictionary = [
+            "नेपाल", "नमस्कार", "स्वागत", "शुभकामना", "शान्ति", "खुसी", "सपना", "यात्रा", "पहाड",
+            "नदी", "सूर्य", "चन्द्रमा", "तारा", "पानी", "आकाश", "भूमि", "रूख", "फूल", "चरा"
+        ];
+
+        // Draggable popup setup
+        let isDragging = false;
+        let dragStartX, dragStartY;
+        let dragTimer;
+        const LONG_PRESS_DURATION = 150;
+
+        suggestionPopup.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            dragTimer = setTimeout(() => {
+                isDragging = true;
+                userPositioned = true;
+                dragStartX = e.clientX - suggestionPopup.offsetLeft;
+                dragStartY = e.clientY - suggestionPopup.offsetTop;
+            }, LONG_PRESS_DURATION);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                suggestionPopup.style.left = `${e.clientX - dragStartX}px`;
+                suggestionPopup.style.top = `${e.clientY - dragStartY}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (dragTimer) clearTimeout(dragTimer);
+            isDragging = false;
+        });
+    </script>
+</body>
+</html>
