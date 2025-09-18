@@ -8,11 +8,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Use Google Fonts for 'Noto Sans Devanagari' -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Use Google Fonts for 'Noto Serif Devanagari' -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-family: 'Noto Serif Devanagari', sans-serif;
             background-color: #f0f4f8;
             display: flex;
             justify-content: center;
@@ -40,7 +40,7 @@
             resize: vertical;
             outline: none;
             transition: border-color 0.2s ease-in-out;
-            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-family: 'Noto Serif Devanagari', sans-serif;
         }
         textarea:focus {
             border-color: #3b82f6;
@@ -131,7 +131,7 @@
         }
 
         .textarea-box {
-            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-family: 'Noto Serif Devanagari', sans-serif;
             font-size: 1.5rem;
             line-height: 2.25rem;
         }
@@ -231,7 +231,7 @@
         <div class="mb-4 relative">
             <label for="phonetic-input-textarea" class="label block">Phonetic Input</label>
             <textarea id="phonetic-input-textarea"
-                class="w-full h-24 p-4 rounded-2xl border-2 border-gray-300 focus:outline-none focus:border-blue-500 resize-none shadow-inner textarea-box"
+                class="w-full h-48 p-4 rounded-2xl border-2 border-gray-300 focus:outline-none focus:border-blue-500 resize-none shadow-inner textarea-box"
                 placeholder="Start typing in English... " spellcheck="false" autocorrect="off" autocapitalize="off"></textarea>
             <div class="flex gap-2 mt-2">
                 <button id="insertZWNJ" class="action-button">ZWNJ</button>
@@ -244,7 +244,7 @@
         <div class="mb-6">
             <label for="devanagari-output-textarea" class="label block">Devanagari Output</label>
             <textarea id="devanagari-output-textarea"
-                class="w-full h-24 p-4 rounded-2xl border-2 border-gray-300 bg-gray-100 resize-none shadow-inner textarea-box"
+                class="w-full h-48 p-4 rounded-2xl border-2 border-gray-300 bg-gray-100 resize-none shadow-inner textarea-box"
                 readonly></textarea>
             <div class="output-actions">
                 <button id="selectAllBtn" class="action-button">Select All</button>
@@ -266,7 +266,7 @@
                 </div>
                 <div class="tip-item">
                     <span class="tip-bullet">•</span>
-                    <span>If a letter gets wrongly evaluated with the next letter, use the slash (/) key to separate. Example: .pratishatko = प्रतिशत्को, pratishat/ko = प्रतिशतको | शब्दको अन्त्यमा हलन्त नराख्नको लागि backslash (\) अक्षर प्रयोग गर्नुहोस् । Example: bas = बस्, bas\ = बस।</span>
+                    <span>If a letter gets wrongly evaluated with the next letter, use the slash (/) key to separate. Example: gya = ज्ञ, g/ya = ग्य | शब्दको अन्त्यमा हलन्त नराख्नको लागि backslash (\) अक्षर प्रयोग गर्नुहोस् । Example: bas = बस्, bas\ = बस।</span>
                 </div>
                 <div class="tip-item">
                     <span class="tip-bullet">•</span>
@@ -373,6 +373,9 @@
         // Flag for user-positioned popup
         let userPositioned = false;
 
+        // Flag for just selected via keyboard to skip immediate regeneration
+        let justSelectedViaKeyboard = false;
+
         // Document content for parsing phonetic rules
         const documentContent = `Nepali Barhakhari (बाराखडी)
 स्वर (Vowels)
@@ -437,7 +440,7 @@ h=ह्/ह , ha=ह/हा , haa=हा , hi=हि/ही , hii=ही , hu=�
 क्ष (ksha)
 ksh=क्ष्/क्ष , ksha=क्ष/क्षा , kshaa=क्षा , kshi=क्षि/क्षी , kshuu=क्षू , kshe=क्षे , kshai=क्षै , ksho=क्षो , kshau=क्षौ 
 त्र (tra)
-tr=त्र्/त्र , tra=त्र/त्रा , traa=त्रा , tri=त्रि/त्री/त्रृ , trii=त्री , tru=त्रु/त्रू , truu=त्रू , tre=त्रे , trai=त्रै , tro=त्रो , trau=त्रौ
+tr=त्र्/त्र , tra=त्र/ट्र/त्रा/ट्रा , traa=त्रा/ट्रा , tri=त्रि/त्री/त्रृ/ट्रि/ट्री , trii=त्री/ट्री , tru=ट्रु/त्रु/त्रू/ट्रू, truu=त्रू/ट्रू , tre=त्रे/ट्रे , trai=त्रै/ट्रै, tro=त्रो/ट्रो, trau=त्रौ/ट्रौ
 ज्ञ (gya)
 gy=ज्ञ्/ज्ञ , gya=ज्ञ/ ज्ञा , gyaa=ज्ञा , gyi=ज्ञि/ज्ञी , gyii=ज्ञी , gyu=ज्ञु/ज्ञू , gyuu=ज्ञू , gye=ज्ञे , gyai=ज्ञै , gyo=ज्ञो , gyau=ज्ञौ
 shr=श्र्/श्र , shra=श्र/श्रा , shraa=श्रा , shri=श्रि/श्री/श्रृ/श‍ृ , shrii=श्री , shru=श्रु/श्रू/ , shruu=श्रू , shre=श्रे , shrai=श्रै , shro=श्रो , shrau=श्रौ
@@ -902,10 +905,12 @@ should not be case sensitive except 'N=ण्/ ण , Na=ण/ णा , न / न�
             ['क्ष्', 'ksh'], ['क्ष', 'ksha'], ['क्षा', 'kshaa'], ['क्षि', 'kshi'], ['क्षी', 'kshi'], ['क्षु', 'kshu'], ['क्षू', 'kshu'], 
             ['क्षे', 'kshe'], ['क्षै', 'kshai'], ['क्षो', 'kshau'], ['क्षौ', 'kshau'], 
             ['त्र्', 'tr'], ['त्र', 'tra'], ['त्रा', 'traa'], ['त्रि', 'tri'], ['त्रृ', 'tri'], ['त्री', 'tri'], ['त्रु ', 'tru'], ['त्रू', 'tru'], 
-            ['त्रे', 'tre'], ['त्रै', 'trai'], ['त्रो', 'tro'], ['त्रौ', 'trau'], 
+            ['त्रे', 'tre'], ['त्रै', 'trai'], ['त्रो', 'tro'], ['त्रौ', 'trau'], ['ट्र', 'tra'], ['ट्रा', 'tra'], ['ट्रि', 'tri'], ['ट्री', 'tri'], 
+            ['ट्रे', 'tre'], ['ट्रै', 'trai'], ['ट्रो', 'tro'], ['ट्रौ', 'trau'], 
             ['ज्ञ्', 'gy'], ['ज्ञ', 'gya'], ['ज्ञा', 'gyaa'], ['ज्ञि', 'gyi'], ['ज्ञी', 'gyi'], ['ज्ञु ', 'gyu'], ['ज्ञू', 'gyu'], 
             ['ज्ञे', 'gye'], ['ज्ञै', 'gyai'], ['ज्ञो', 'gyo'], ['ज्ञौ', 'gyau'],
-            ['श्र्', 'shr'], ['श्र', 'shra'], ['श्रा', 'shraa'], ['श्रि', 'shri'], ['श्रृ', 'shri'], ['श्री', 'shri'], ['श्रु', 'shru'], ['श‍ृ', 'shri'], ['श्रू', 'shru'], ['श्रे', 'shre'], ['श्रै', 'shrai'], ['श्रो', 'shro'], ['श्रौ', 'shrau'],                                          
+            ['श्र्', 'shr'], ['श्र', 'shra'], ['श्रा', 'shraa'], ['श्रि', 'shri'], ['श्रृ', 'shri'], ['श्री', 'shri'], ['श्रु', 'shru'], ['श‍ृ', 'shri'], 
+			['श्रू', 'shru'], ['श्रे', 'shre'], ['श्रै', 'shrai'], ['श्रो', 'shro'], ['श्रौ', 'shrau'],                                          
         ]);
 
         function convertDevanagariToSimplifiedPhonetic(devanagariInput) {
@@ -1727,6 +1732,10 @@ should not be case sensitive except 'N=ण्/ ण , Na=ण/ णा , न / न�
             }
 
             if (event.key === 'Enter') {
+                if (event.shiftKey) {
+                    // Allow shift+enter for new line
+                    return;
+                }
                 if (highlightedButton) {
                     event.preventDefault();
                     const btnToClick = highlightedButton === 'zwnj' ? insertZWNJBtn : insertZWJBtn;
@@ -1734,6 +1743,7 @@ should not be case sensitive except 'N=ण्/ ण , Na=ण/ णा , न / न�
                     insertZWNJBtn.classList.remove('highlighted');
                     insertZWJBtn.classList.remove('highlighted');
                     highlightedButton = null;
+                    justSelectedViaKeyboard = true;
                     return;
                 }
                 if (selectedSuggestionIndex !== -1 && numSuggestions > 0) {
@@ -1746,10 +1756,12 @@ should not be case sensitive except 'N=ण्/ ण , Na=ण/ णा , न / न�
                         selectedBtn.dataset.isWord === 'true',
                         selectedBtn.dataset.fullReplacementPhonetic
                     );
+                    justSelectedViaKeyboard = true;
                     return;
                 }
-                }
-            });
+                // If no suggestion or ZWJ, allow default Enter for new line
+            }
+        });
 
         textarea.addEventListener('keyup', (event) => {
             if (event.key === 'Shift' && shiftPressedAlone) {
@@ -1768,6 +1780,11 @@ should not be case sensitive except 'N=ण्/ ण , Na=ण/ णा , न / न�
             }
 
             shiftPressedAlone = false;
+
+            if (justSelectedViaKeyboard) {
+                justSelectedViaKeyboard = false;
+                return;
+            }
 
             if (!isNavigationKeyPressed) {
                 updateOutput();
